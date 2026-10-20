@@ -15,11 +15,9 @@ use RPGStats\Command\TrainingCommand;
 use RPGStats\Command\TitlesCommand;
 use RPGStats\Form\DialogueMenu;
 use RPGStats\Form\StatsMenu;
-use RPGStats\Listener\MenuItemListener;
 use RPGStats\Listener\PlayerListener;
 use RPGStats\Manager\CombatTracker;
 use RPGStats\Manager\HudManager;
-use RPGStats\Manager\MenuItemManager;
 use RPGStats\Manager\ModeManager;
 use RPGStats\Manager\PlayerDataManager;
 use RPGStats\Manager\SkillManager;
@@ -37,7 +35,6 @@ class RPGStatsPlugin extends PluginBase
     private PlayerDataManager $dataManager;
     private CombatTracker $combatTracker;
     private HudManager $hudManager;
-    private MenuItemManager $menuItemManager;
     private StatsMenu $statsMenu;
     private DialogueMenu $dialogueMenu;
 
@@ -72,7 +69,6 @@ class RPGStatsPlugin extends PluginBase
         $this->dialogueMenu = new DialogueMenu($this);
         $this->skillManager = new SkillManager($this);
         $this->modeManager = new ModeManager($this);
-        $this->menuItemManager = new MenuItemManager($this);
 
         // O ModeManager é um StatProvider: registrando-o aqui, o bônus de um modo ligado
         // entra em getStat() como se fosse de classe ou título, sem caso especial no cálculo.
@@ -88,7 +84,6 @@ class RPGStatsPlugin extends PluginBase
             new PlayerListener($this, $this->dataManager, $this->combatTracker, $this->hudManager),
             $this,
         );
-        $pluginManager->registerEvents(new MenuItemListener($this, $this->menuItemManager), $this);
 
         $this->registerCommands();
         $this->scheduleTasks();
@@ -97,7 +92,6 @@ class RPGStatsPlugin extends PluginBase
         foreach ($this->getServer()->getOnlinePlayers() as $player) {
             $this->dataManager->load($player->getName());
             $this->dataManager->applyAttributes($player);
-            $this->menuItemManager->attach($player);
         }
     }
 
@@ -105,7 +99,6 @@ class RPGStatsPlugin extends PluginBase
     {
         // Última chance de gravar: nada do que mudou desde o último auto-save se perde.
         $this->dataManager->flush();
-        $this->menuItemManager->forgetAll();
     }
 
     private function registerCommands(): void
@@ -171,11 +164,11 @@ class RPGStatsPlugin extends PluginBase
     }
 
     /**
-     * Abre a ficha no formato configurado. É o que o /stats e o item de menu abrem.
+     * Abre a ficha no formato configurado. É o que o /stats abre.
      *
      * A ficha desenhada (`DialogueMenu`) só fica legível com o resource pack do RPGStats
-     * instalado — ela é uma tela em branco que o pack pinta, e os dados vão em campos de
-     * largura fixa completados com "@". Sem o pack, o jogador vê esses campos crus.
+     * instalado — ela é uma tela em branco que o pack pinta com os dados que vão nos
+     * botões do diálogo. Sem o pack, o jogador vê esses botões soltos.
      *
      * Por isso `ui.formato` nasce em "formulario": o formulário padrão do Bedrock é feio,
      * mas funciona em qualquer servidor sem pack. Troque para "desenhada" depois de
@@ -206,11 +199,6 @@ class RPGStatsPlugin extends PluginBase
     public function getHudManager(): HudManager
     {
         return $this->hudManager;
-    }
-
-    public function getMenuItemManager(): MenuItemManager
-    {
-        return $this->menuItemManager;
     }
 
     public function getStatsMenu(): StatsMenu
