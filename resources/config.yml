@@ -132,6 +132,20 @@ ui:
   # Os nomes antigos (original, jade, tinta, sangue, pergaminho) viram o tema equivalente.
   default-preset: aurora
 
+item-menu:
+  # Item que abre a ficha (a mesma tela do /stats). Fica preso no slot: não move, não
+  # cai, não some na morte nem no /clear. Desligar remove o item de quem ainda o tiver.
+  enabled: true
+
+  # Slot da hotbar, de 0 (esquerda) a 8 (direita).
+  slot: 8
+
+  # Qualquer id que o /give aceita.
+  item: nether_star
+  nome: "§r§6§lMenu"
+  lore:
+    - "§r§7Use para abrir sua ficha."
+
 hud:
   # DEIXE false ENQUANTO O RESOURCE PACK NÃO ESTIVER INSTALADO. A HUD conversa com o
   # pack pelo título, então sem ele o jogador lê "rpgh:h082m100..." escrito na tela.

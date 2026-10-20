@@ -41,7 +41,7 @@ class StatsCommand extends Command
             }
 
             // Jogador vê a ficha; console continua no texto.
-            $this->openSheet($sender);
+            $this->plugin->openSheet($sender);
 
             return true;
         }
@@ -155,32 +155,9 @@ class StatsCommand extends Command
         $sender->sendMessage("§aTema alterado para " . $manager->getUiPreset($name)->nome . "§a.");
 
         // Reabre já com a cor nova.
-        $this->openSheet($sender);
+        $this->plugin->openSheet($sender);
 
         return true;
-    }
-
-    /**
-     * Abre a ficha no formato configurado.
-     *
-     * A ficha desenhada (`DialogueMenu`) só fica legível com o resource pack do RPGStats
-     * instalado — ela é uma tela em branco que o pack pinta, e os dados vão em campos de
-     * largura fixa completados com "@". Sem o pack, o jogador vê esses campos crus.
-     *
-     * Por isso `ui.formato` nasce em "formulario": o formulário padrão do Bedrock é feio,
-     * mas funciona em qualquer servidor sem pack. Troque para "desenhada" depois de
-     * instalar o pack.
-     */
-    private function openSheet(Player $player): void
-    {
-        $formato = strtolower((string) $this->plugin->getConfig()->getNested("ui.formato", "formulario"));
-
-        if ($formato === "desenhada" || $formato === "dialogo") {
-            $this->plugin->getDialogueMenu()->open($player);
-            return;
-        }
-
-        $this->plugin->getStatsMenu()->open($player);
     }
 
     private function showStats(CommandSender $sender, string $targetName): bool

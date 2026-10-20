@@ -274,6 +274,14 @@ Duas tecnologias diferentes, de propósito:
 
 Console e `/stats <jogador>` continuam em texto.
 
+O **item de menu** (`MenuItemManager` + `MenuItemListener`, seção `item-menu:` do config)
+abre a mesma ficha que o `/stats`, pelo `RPGStatsPlugin::openSheet()`. Ele é reconhecido
+pela tag `rpgstats:menu`, nunca pelo nome. A trava tem três peças: a tag
+`minecraft:item_lock` (o cliente nem deixa mover), o cancelamento de toda transação que
+toque no item ou no slot dele, e um listener no inventário que devolve o item no tick
+seguinte quando algo o tira de fora de uma transação (`/clear`, outro plugin). Na morte
+ele fica por `keepOnDeath`.
+
 O visual inteiro (ficha, HUD e formulários) está em `resourcepack/`, e o README de lá
 documenta os contratos byte a byte. O resumo do que **não dá para mudar de um lado só**:
 
