@@ -233,7 +233,7 @@
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [ 31, 15 ],
-          "size": [ "default", 9 ],
+          "size": [ 230, 9 ],
           "text_alignment": "left"
         }
       },
@@ -309,7 +309,7 @@
             },
             {
               "binding_type": "view",
-              "source_property_name": "((100 - (#student_button_text + 0)) / 100)",
+              "source_property_name": "((100 - (#student_button_text * 1)) / 100)",
               "target_property_name": "#clip_ratio"
             }
           ]
@@ -490,12 +490,96 @@
       { "velocidade@rpgstats_ficha.cartao": { "collection_index": 3, "offset": [ 0, 55 ], "$icone": "textures/ui/rpgstats/icone_velocidade", "$cor_atributo": [ 0.28, 0.86, 0.75 ] } },
       { "mana@rpgstats_ficha.cartao": { "collection_index": 4, "offset": [ 99, 55 ], "$icone": "textures/ui/rpgstats/icone_mana", "$cor_atributo": [ 0.63, 0.47, 1.0 ] } },
       { "vel_ataque@rpgstats_ficha.cartao": { "collection_index": 5, "offset": [ 198, 55 ], "$icone": "textures/ui/rpgstats/icone_vel_ataque", "$cor_atributo": [ 1.0, 0.82, 0.31 ] } },
-      { "textos_vida@rpgstats_ficha.textos_cartao": { "offset": [ 0, 0 ], "$i_valor": 20, "$i_nome": 21, "$i_detalhe": 22 } },
-      { "textos_dano@rpgstats_ficha.textos_cartao": { "offset": [ 99, 0 ], "$i_valor": 23, "$i_nome": 24, "$i_detalhe": 25 } },
-      { "textos_defesa@rpgstats_ficha.textos_cartao": { "offset": [ 198, 0 ], "$i_valor": 26, "$i_nome": 27, "$i_detalhe": 28 } },
-      { "textos_velocidade@rpgstats_ficha.textos_cartao": { "offset": [ 0, 55 ], "$i_valor": 29, "$i_nome": 30, "$i_detalhe": 31 } },
-      { "textos_mana@rpgstats_ficha.textos_cartao": { "offset": [ 99, 55 ], "$i_valor": 32, "$i_nome": 33, "$i_detalhe": 34 } },
-      { "textos_vel_ataque@rpgstats_ficha.textos_cartao": { "offset": [ 198, 55 ], "$i_valor": 35, "$i_nome": 36, "$i_detalhe": 37 } },
+      {
+        "textos_vida": {
+          "type": "panel",
+          "size": [ 96, 52 ],
+          "offset": [ 0, 0 ],
+          "layer": 10,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "controls": [
+            { "valor@rpgstats_ficha.texto_valor": { "collection_index": 20 } },
+            { "nome@rpgstats_ficha.texto_nome": { "collection_index": 21 } },
+            { "detalhe@rpgstats_ficha.texto_detalhe": { "collection_index": 22 } }
+          ]
+        }
+      },
+      {
+        "textos_dano": {
+          "type": "panel",
+          "size": [ 96, 52 ],
+          "offset": [ 99, 0 ],
+          "layer": 10,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "controls": [
+            { "valor@rpgstats_ficha.texto_valor": { "collection_index": 23 } },
+            { "nome@rpgstats_ficha.texto_nome": { "collection_index": 24 } },
+            { "detalhe@rpgstats_ficha.texto_detalhe": { "collection_index": 25 } }
+          ]
+        }
+      },
+      {
+        "textos_defesa": {
+          "type": "panel",
+          "size": [ 96, 52 ],
+          "offset": [ 198, 0 ],
+          "layer": 10,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "controls": [
+            { "valor@rpgstats_ficha.texto_valor": { "collection_index": 26 } },
+            { "nome@rpgstats_ficha.texto_nome": { "collection_index": 27 } },
+            { "detalhe@rpgstats_ficha.texto_detalhe": { "collection_index": 28 } }
+          ]
+        }
+      },
+      {
+        "textos_velocidade": {
+          "type": "panel",
+          "size": [ 96, 52 ],
+          "offset": [ 0, 55 ],
+          "layer": 10,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "controls": [
+            { "valor@rpgstats_ficha.texto_valor": { "collection_index": 29 } },
+            { "nome@rpgstats_ficha.texto_nome": { "collection_index": 30 } },
+            { "detalhe@rpgstats_ficha.texto_detalhe": { "collection_index": 31 } }
+          ]
+        }
+      },
+      {
+        "textos_mana": {
+          "type": "panel",
+          "size": [ 96, 52 ],
+          "offset": [ 99, 55 ],
+          "layer": 10,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "controls": [
+            { "valor@rpgstats_ficha.texto_valor": { "collection_index": 32 } },
+            { "nome@rpgstats_ficha.texto_nome": { "collection_index": 33 } },
+            { "detalhe@rpgstats_ficha.texto_detalhe": { "collection_index": 34 } }
+          ]
+        }
+      },
+      {
+        "textos_vel_ataque": {
+          "type": "panel",
+          "size": [ 96, 52 ],
+          "offset": [ 198, 55 ],
+          "layer": 10,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "controls": [
+            { "valor@rpgstats_ficha.texto_valor": { "collection_index": 35 } },
+            { "nome@rpgstats_ficha.texto_nome": { "collection_index": 36 } },
+            { "detalhe@rpgstats_ficha.texto_detalhe": { "collection_index": 37 } }
+          ]
+        }
+      },
       { "rodape@rpgstats_ficha.rodape": {} }
     ],
     "bindings": [
@@ -538,7 +622,7 @@
     ]
   },
 
-  // Miolo do cartão: só o ícone. Os textos ficam em textos_cartao, por cima.
+  // Miolo do cartão: só o ícone. Os textos ficam nos painéis textos_* de aba_atributos, por cima.
   "conteudo_cartao": {
     "type": "panel",
     "size": [ "100%", "100%" ],
@@ -570,52 +654,37 @@
     ]
   },
 
-  // Os três textos de um cartão, cada um lido do seu botão (20-37). Fica fora do botão
+  // Os três textos de um cartão, cada um lido do seu botão (20-37). Ficam fora do botão
   // e por cima dele: rótulo não pega clique, então o toque continua indo para o cartão.
-  "textos_cartao": {
-    "type": "panel",
-    "size": [ 96, 52 ],
-    "layer": 10,
+  // collection_index vai escrito em cada um, sem variável.
+  "texto_nome@rpgstats_ficha.texto_slot": {
+    "$cor": [ 0.78, 0.81, 0.88 ],
+    "font_scale_factor": 0.8,
+    "size": [ 66, 9 ],
+    "text_alignment": "left",
+    "offset": [ 25, 10 ],
     "anchor_from": "top_left",
-    "anchor_to": "top_left",
-    "controls": [
-      {
-        "nome@rpgstats_ficha.texto_slot": {
-          "collection_index": "$i_nome",
-          "$cor": [ 0.78, 0.81, 0.88 ],
-          "font_scale_factor": 0.8,
-          "size": [ 66, 9 ],
-          "text_alignment": "left",
-          "offset": [ 25, 10 ],
-          "anchor_from": "top_left",
-          "anchor_to": "top_left"
-        }
-      },
-      {
-        "valor@rpgstats_ficha.texto_slot": {
-          "collection_index": "$i_valor",
-          "$cor": [ 0.97, 0.98, 1.0 ],
-          "font_size": "large",
-          "size": [ 40, 14 ],
-          "text_alignment": "left",
-          "offset": [ 6, -5 ],
-          "anchor_from": "bottom_left",
-          "anchor_to": "bottom_left"
-        }
-      },
-      {
-        "detalhe@rpgstats_ficha.texto_slot": {
-          "collection_index": "$i_detalhe",
-          "$cor": [ 0.58, 0.62, 0.71 ],
-          "font_scale_factor": 0.7,
-          "size": [ 56, 15 ],
-          "text_alignment": "right",
-          "offset": [ -6, -5 ],
-          "anchor_from": "bottom_right",
-          "anchor_to": "bottom_right"
-        }
-      }
-    ]
+    "anchor_to": "top_left"
+  },
+
+  "texto_valor@rpgstats_ficha.texto_slot": {
+    "$cor": [ 0.97, 0.98, 1.0 ],
+    "font_size": "large",
+    "size": [ 40, 14 ],
+    "text_alignment": "left",
+    "offset": [ 6, -5 ],
+    "anchor_from": "bottom_left",
+    "anchor_to": "bottom_left"
+  },
+
+  "texto_detalhe@rpgstats_ficha.texto_slot": {
+    "$cor": [ 0.58, 0.62, 0.71 ],
+    "font_scale_factor": 0.7,
+    "size": [ 56, 15 ],
+    "text_alignment": "right",
+    "offset": [ -6, -5 ],
+    "anchor_from": "bottom_right",
+    "anchor_to": "bottom_right"
   },
 
   // Seletor de quantidade (7, 8, 9) e a dica, que vem no texto do diálogo.
