@@ -295,11 +295,12 @@ desenha o que quiser, e os dados vão nos botões:
   cercados por `|`, para um nunca casar dentro de outro.
 - **A ordem dos botões é a posição na tela.** 0–5 cartões dos atributos, 6 fechar,
   7/8/9 menos, quantidade e mais, 10–12 abas, 13–19 só texto (nome, subtítulo, nível,
-  XP em %, XP em texto, pontos, TP). Inserir um botão no meio desloca todos.
-- **O texto dos cartões tem campos de largura fixa**: valor (6) + nome (12), completados
-  com `@`, e depois custo e efeito livres. A UI só corta texto pelo começo (`'%.Ns'`).
-  Os campos fixos são **só ASCII** — o corte conta bytes. É por isso que
-  `attributeName()` não tem acento.
+  XP em %, XP em texto, pontos, TP), 20–37 só texto (valor, nome e custo + efeito de
+  cada cartão). Inserir um botão no meio desloca todos.
+- **Um texto por botão, nada de campos colados.** No cliente, `'%.Ns'` sobre o texto de
+  um botão da coleção saía vazio — os cartões ficaram em branco no primeiro teste. A
+  HUD ainda corta o título, mas cada campo direto de `#preserved_text`, nunca de outro
+  campo derivado.
 - **O texto do diálogo** é a dica do rodapé na aba de atributos e o corpo nas outras.
 
 A tela de diálogo vanilla continua lá: `ui/npc_interact_screen.json` só acrescenta a ficha
@@ -410,8 +411,8 @@ via `saveResource()`. **Editar um arquivo em `resources/` não afeta um servidor
 
 ## Pendências conhecidas
 
-- A interface nova (ficha, HUD e formulários) foi validada no renderizador offline, mas
-  ainda não num cliente Bedrock: falta conferir no jogo o clique dos cartões e das abas,
-  a barra de XP e a HUD antes de ligar `ui.formato: desenhada` e `hud.enabled: true`.
+- Ficha e HUD já rodaram num cliente Bedrock (1.26.50) e foram corrigidas a partir
+  disso; falta confirmar no jogo os cartões com texto, a barra de XP enchendo e as
+  barras da HUD.
 - `RPGArmors` e `RPGItems` vão entrar como `StatProvider`; enquanto não entram, a única
   fonte externa de bônus é o `ModeManager`.

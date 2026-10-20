@@ -1,13 +1,13 @@
 {
     "format_version": 1,
     "header": {
-        "description": "Interface do RPGStats: ficha, HUD e formulários",
-        "name": "RPGStats §b[UI]",
+        "description": "Interface do RPGStats: ficha, HUD e formul\u00e1rios",
+        "name": "RPGStats \u00a7b[UI]",
         "uuid": "49fb11ff-45ab-40d5-9711-cb662bc135fa",
         "version": [
             2,
             0,
-            0
+            1
         ],
         "min_engine_version": [
             1,
@@ -23,7 +23,7 @@
             "version": [
                 2,
                 0,
-                0
+                1
             ]
         }
     ]

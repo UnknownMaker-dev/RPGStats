@@ -5,13 +5,16 @@
   //
   //   nome do diálogo   "rpgstats|<aba>|t:<tema>|"   aba = ficha, detalhes ou bonus
   //   texto do diálogo  dica do rodapé (aba ficha) ou o corpo das abas de texto
-  //   botões 0-5        cartões dos atributos: VALOR(6) + NOME(12) + resto,
-  //                     os dois primeiros campos completados com "@" (só ASCII)
+  //   botões 0-5        cartões dos atributos (o texto deles não é desenhado)
   //   botão  6          fechar
   //   botões 7, 8, 9    menos, quantidade, mais
   //   botões 10-12      abas ficha, detalhes, bonus
   //   botões 13-19      só texto: nome, subtítulo, nível, XP em %, XP em texto,
   //                     pontos, TP (não são desenhados como botão)
+  //   botões 20-37      só texto, três por cartão: valor, nome, custo + efeito
+  //
+  // Cada texto que aparece vem no seu próprio botão. Fatiar o texto de um botão com
+  // '%.Ns' saía vazio no cliente, então a ficha não corta texto nenhum.
   "namespace": "rpgstats_ficha",
 
   // ---------------------------------------------------------------------------
@@ -230,7 +233,7 @@
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [ 31, 15 ],
-          "size": [ 200, 9 ],
+          "size": [ "default", 9 ],
           "text_alignment": "left"
         }
       },
@@ -306,7 +309,7 @@
             },
             {
               "binding_type": "view",
-              "source_property_name": "((100 - (#student_button_text * 1)) / 100)",
+              "source_property_name": "((100 - (#student_button_text + 0)) / 100)",
               "target_property_name": "#clip_ratio"
             }
           ]
@@ -487,6 +490,12 @@
       { "velocidade@rpgstats_ficha.cartao": { "collection_index": 3, "offset": [ 0, 55 ], "$icone": "textures/ui/rpgstats/icone_velocidade", "$cor_atributo": [ 0.28, 0.86, 0.75 ] } },
       { "mana@rpgstats_ficha.cartao": { "collection_index": 4, "offset": [ 99, 55 ], "$icone": "textures/ui/rpgstats/icone_mana", "$cor_atributo": [ 0.63, 0.47, 1.0 ] } },
       { "vel_ataque@rpgstats_ficha.cartao": { "collection_index": 5, "offset": [ 198, 55 ], "$icone": "textures/ui/rpgstats/icone_vel_ataque", "$cor_atributo": [ 1.0, 0.82, 0.31 ] } },
+      { "textos_vida@rpgstats_ficha.textos_cartao": { "offset": [ 0, 0 ], "$i_valor": 20, "$i_nome": 21, "$i_detalhe": 22 } },
+      { "textos_dano@rpgstats_ficha.textos_cartao": { "offset": [ 99, 0 ], "$i_valor": 23, "$i_nome": 24, "$i_detalhe": 25 } },
+      { "textos_defesa@rpgstats_ficha.textos_cartao": { "offset": [ 198, 0 ], "$i_valor": 26, "$i_nome": 27, "$i_detalhe": 28 } },
+      { "textos_velocidade@rpgstats_ficha.textos_cartao": { "offset": [ 0, 55 ], "$i_valor": 29, "$i_nome": 30, "$i_detalhe": 31 } },
+      { "textos_mana@rpgstats_ficha.textos_cartao": { "offset": [ 99, 55 ], "$i_valor": 32, "$i_nome": 33, "$i_detalhe": 34 } },
+      { "textos_vel_ataque@rpgstats_ficha.textos_cartao": { "offset": [ 198, 55 ], "$i_valor": 35, "$i_nome": 36, "$i_detalhe": 37 } },
       { "rodape@rpgstats_ficha.rodape": {} }
     ],
     "bindings": [
@@ -529,8 +538,7 @@
     ]
   },
 
-  // Campos do texto do botão: '%.6s' é o valor, os 12 seguintes o nome, o resto é
-  // o detalhe (custo e efeito, com cores § escolhidas pelo plugin).
+  // Miolo do cartão: só o ícone. Os textos ficam em textos_cartao, por cima.
   "conteudo_cartao": {
     "type": "panel",
     "size": [ "100%", "100%" ],
@@ -558,83 +566,53 @@
           "anchor_to": "top_left",
           "layer": 1
         }
-      },
+      }
+    ]
+  },
+
+  // Os três textos de um cartão, cada um lido do seu botão (20-37). Fica fora do botão
+  // e por cima dele: rótulo não pega clique, então o toque continua indo para o cartão.
+  "textos_cartao": {
+    "type": "panel",
+    "size": [ 96, 52 ],
+    "layer": 10,
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "controls": [
       {
-        "nome": {
-          "type": "label",
-          "text": "#nome",
-          "color": [ 0.78, 0.81, 0.88 ],
+        "nome@rpgstats_ficha.texto_slot": {
+          "collection_index": "$i_nome",
+          "$cor": [ 0.78, 0.81, 0.88 ],
           "font_scale_factor": 0.8,
-          "shadow": false,
           "size": [ 66, 9 ],
           "text_alignment": "left",
           "offset": [ 25, 10 ],
           "anchor_from": "top_left",
-          "anchor_to": "top_left",
-          "bindings": [
-            {
-              "binding_name": "#student_button_text",
-              "binding_type": "collection",
-              "binding_collection_name": "student_buttons_collection"
-            },
-            {
-              "binding_type": "view",
-              "source_property_name": "((('%.18s' * #student_button_text) - ('%.6s' * #student_button_text)) - '@')",
-              "target_property_name": "#nome"
-            }
-          ]
+          "anchor_to": "top_left"
         }
       },
       {
-        "valor": {
-          "type": "label",
-          "text": "#valor",
-          "color": [ 0.97, 0.98, 1.0 ],
+        "valor@rpgstats_ficha.texto_slot": {
+          "collection_index": "$i_valor",
+          "$cor": [ 0.97, 0.98, 1.0 ],
           "font_size": "large",
-          "shadow": false,
           "size": [ 40, 14 ],
           "text_alignment": "left",
           "offset": [ 6, -5 ],
           "anchor_from": "bottom_left",
-          "anchor_to": "bottom_left",
-          "bindings": [
-            {
-              "binding_name": "#student_button_text",
-              "binding_type": "collection",
-              "binding_collection_name": "student_buttons_collection"
-            },
-            {
-              "binding_type": "view",
-              "source_property_name": "(('%.6s' * #student_button_text) - '@')",
-              "target_property_name": "#valor"
-            }
-          ]
+          "anchor_to": "bottom_left"
         }
       },
       {
-        "detalhe": {
-          "type": "label",
-          "text": "#detalhe",
-          "color": [ 0.58, 0.62, 0.71 ],
+        "detalhe@rpgstats_ficha.texto_slot": {
+          "collection_index": "$i_detalhe",
+          "$cor": [ 0.58, 0.62, 0.71 ],
           "font_scale_factor": 0.7,
-          "text_alignment": "right",
-          "shadow": false,
           "size": [ 56, 15 ],
+          "text_alignment": "right",
           "offset": [ -6, -5 ],
           "anchor_from": "bottom_right",
-          "anchor_to": "bottom_right",
-          "bindings": [
-            {
-              "binding_name": "#student_button_text",
-              "binding_type": "collection",
-              "binding_collection_name": "student_buttons_collection"
-            },
-            {
-              "binding_type": "view",
-              "source_property_name": "(#student_button_text - ('%.18s' * #student_button_text))",
-              "target_property_name": "#detalhe"
-            }
-          ]
+          "anchor_to": "bottom_right"
         }
       }
     ]

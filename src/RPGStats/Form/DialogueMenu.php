@@ -22,11 +22,11 @@ use RPGStats\RPGStatsPlugin;
  * - **Ordem dos botões**: o pack pega cada um por `collection_index`.
  *   0–5 cartões dos atributos · 6 fechar · 7/8/9 menos, quantidade, mais ·
  *   10–12 abas · 13–19 só texto (nome, subtítulo, nível, XP em %, XP em texto,
- *   pontos, TP). Inserir um botão no meio desloca todos os seguintes.
- * - **Texto dos cartões**: VALOR (6) + NOME (12) + resto. Os dois primeiros campos têm
- *   largura fixa, completados com "@", porque a UI só corta texto pelo começo
- *   (`'%.Ns'`). Esses campos são **só ASCII**: o corte conta bytes, e um acento no
- *   meio partiria o caractere. O resto (custo e efeito) é livre e pode ter `§`.
+ *   pontos, TP) · 20–37 só texto, três por cartão na ordem de ATTRIBUTES (valor,
+ *   nome, custo e efeito). Inserir um botão no meio desloca todos os seguintes.
+ * - **Um texto por botão, nunca campos colados.** O cliente não fatiou o texto dos
+ *   cartões no jogo (o `'%.Ns'` sobre o texto do botão saía vazio), então cada pedaço
+ *   que aparece na tela vem no seu próprio botão. Os botões de texto não são clicáveis.
  * - **Texto do diálogo**: a dica do rodapé na aba de atributos, o corpo nas outras.
  */
 class DialogueMenu
@@ -37,9 +37,6 @@ class DialogueMenu
     private const ABA_FICHA = "ficha";
     private const ABA_DETALHES = "detalhes";
     private const ABA_BONUS = "bonus";
-
-    private const LARGURA_VALOR = 6;
-    private const LARGURA_NOME = 12;
 
     /** @var array<string, int> nome minúsculo => índice em AMOUNTS */
     private array $choice = [];
@@ -70,10 +67,11 @@ class DialogueMenu
             default => "Toque num atributo para treinar +{$amount} com TP",
         });
 
-        // 0 a 5: os cartões, na ordem de ATTRIBUTES.
+        // 0 a 5: os cartões, na ordem de ATTRIBUTES. O texto deles não aparece: o que se
+        // lê no cartão vem dos botões 20 a 37.
         foreach (PlayerDataManager::ATTRIBUTES as $stat) {
             $dialogue->addSimpleButton(
-                $this->cartao($name, $stat, $amount),
+                $this->attributeName($stat),
                 function (Player $p) use ($stat): void {
                     $this->buy($p, $stat);
                 },
@@ -106,22 +104,33 @@ class DialogueMenu
             $dialogue->addSimpleButton($texto);
         }
 
+        // 20 a 37: valor, nome e detalhe de cada cartão.
+        foreach (PlayerDataManager::ATTRIBUTES as $stat) {
+            foreach ($this->cartao($name, $stat, $amount) as $texto) {
+                $dialogue->addSimpleButton($texto);
+            }
+        }
+
         NpcDialogueManager::send($player, $dialogue->build(), true);
     }
 
     /**
-     * Texto de um cartão: valor e nome em largura fixa, depois custo e efeito.
+     * Os três textos de um cartão: valor, nome, e custo com o efeito embaixo.
+     *
+     * @return string[]
      */
-    private function cartao(string $name, string $stat, int $amount): string
+    private function cartao(string $name, string $stat, int $amount): array
     {
         $manager = $this->plugin->getDataManager();
 
         $cost = $manager->getTrainingCostFor($name, $stat, $amount);
         $corCusto = $manager->getTp($name) >= $cost ? "§e" : "§c";
 
-        return self::campo(self::compacto($manager->getStat($name, $stat)), self::LARGURA_VALOR)
-            . self::campo($this->attributeName($stat), self::LARGURA_NOME)
-            . $corCusto . self::compacto($cost) . " TP\n§7" . $this->efeito($name, $stat);
+        return [
+            self::compacto($manager->getStat($name, $stat)),
+            $this->attributeName($stat),
+            $corCusto . self::compacto($cost) . " TP\n§7" . $this->efeito($name, $stat),
+        ];
     }
 
     /** O que o atributo vale hoje, curto o bastante para caber no cartão. */
@@ -157,7 +166,7 @@ class DialogueMenu
         $rank = $manager->getRank($name)?->name;
         $partes[] = $classe ?? "Sem classe";
         if ($rank !== null) {
-            $partes[] = "Rank " . $rank;
+            $partes[] = $rank;
         }
 
         if ($manager->isMaxLevel($name)) {
@@ -246,7 +255,7 @@ class DialogueMenu
         $this->open($player);
     }
 
-    /** Nome do atributo no cartão. Só ASCII: vai num campo de largura fixa. */
+    /** Nome do atributo no cartão e nas mensagens. */
     private function attributeName(string $stat): string
     {
         return match ($stat) {
@@ -309,17 +318,6 @@ class DialogueMenu
     private function close(Player $player): void
     {
         NpcDialogueManager::remove($player);
-    }
-
-    /**
-     * Campo de largura fixa para o pack cortar. Corta o excesso em vez de vazar para o
-     * campo seguinte, e nunca deixa "@" de dentro do texto confundir o enchimento.
-     */
-    private static function campo(string $texto, int $largura): string
-    {
-        $texto = substr(str_replace("@", "", $texto), 0, $largura);
-
-        return str_pad($texto, $largura, "@");
     }
 
     /** Número curto: 999999 cabe inteiro, acima disso vira 1.2M, 34B... */

@@ -48,8 +48,8 @@ O cliente guarda o pack por UUID **e** versão. Depois de editar qualquer arquiv
 suba o `version` do `manifest.json`, senão o jogador continua com o pack antigo em cache.
 
 **Ligue a ficha desenhada e a HUD só com o pack instalado.** As duas mandam dados em
-campos que só o pack sabe ler: sem ele, o jogador vê `rpgh:h082m100...` no título e
-botões com `12@@@@Vida@@@@@@@@` na tela de diálogo.
+canais que só o pack sabe ler: sem ele, o jogador vê `rpgh:h082m100...` no título e
+uma tela de diálogo com quase 40 botões soltos.
 
 ## Temas
 
@@ -71,8 +71,15 @@ imagem. Por isso **um tema novo não precisa de textura nova**: acrescente um pa
 ## Como as telas recebem os dados
 
 O pack não conversa com o servidor: ele lê textos que já chegam ao cliente. A UI só sabe
-cortar texto **pelo começo** (`'%.Ns'`) e **remover** um trecho (`texto - 'trecho'`), por
-isso os dados vão em campos de largura fixa completados com `@`.
+cortar texto **pelo começo** (`'%.Ns'`) e **remover** um trecho (`texto - 'trecho'`).
+
+Duas lições do primeiro teste num cliente de verdade (Bedrock 1.26.50):
+
+- **Na ficha, nada é cortado.** `'%.Ns'` sobre o texto de um botão da coleção saía vazio,
+  então cada texto da tela vem no seu próprio botão.
+- **Na HUD, cada campo é cortado direto do título guardado** (`#preserved_text`). Um campo
+  derivado de outro campo derivado saía vazio. Número vira número com `+ 0` (`* 1` num
+  texto é formatação, não conversão) e texto vai para o rótulo como `'§z' + campo`.
 
 ### Ficha (tela de diálogo de NPC)
 
@@ -81,20 +88,22 @@ isso os dados vão em campos de largura fixa completados com `@`.
 
 | Índice | Conteúdo |
 |---|---|
-| 0–5 | cartões: `VALOR` (6) + `NOME` (12) + custo e efeito (livre, com `§`) |
+| 0–5 | cartões (clicáveis; o texto deles não é desenhado) |
 | 6 | fechar |
 | 7, 8, 9 | menos, quantidade, mais |
 | 10, 11, 12 | abas |
 | 13–19 | só texto: nome, subtítulo, nível, XP em %, XP em texto, pontos, TP |
+| 20–37 | só texto, três por cartão na ordem dos atributos: valor, nome, custo + efeito |
 
 - **Texto do diálogo**: a dica do rodapé na aba de atributos, o corpo nas outras duas.
 
-Os campos de largura fixa são **só ASCII**: o corte conta bytes, e um acento partiria o
-caractere ao meio.
+Os textos dos cartões ficam por cima dos botões, fora deles: rótulo não pega clique, então
+o toque continua indo para o cartão.
 
 ### HUD (título)
 
-Um título só, de 41 caracteres depois do prefixo:
+Um título só, de 41 caracteres depois do prefixo, em campos de largura fixa completados
+com `@` (só ASCII: o corte conta bytes):
 
 ```
 rpgh:h085m100x037l12@@a34/40@@@@@@b120/120@@@@

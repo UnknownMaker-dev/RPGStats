@@ -20,10 +20,21 @@
   "namespace": "rpgstats_hud",
 
   // Guarda o último título "rpgh:" e expõe os campos já cortados.
+  //
+  // Cada campo é cortado direto de #preserved_text, contando o prefixo "rpgh:" (5):
+  //
+  //   rpgh: h085 m100 x037 l12@@ a34/40@@@@@@ b120/120@@@@
+  //   0     5    9    13   17    22           34
+  //
+  // Sem valor intermediário: no cliente, um campo derivado de outro campo derivado
+  // saía vazio. Número vira número com "+ 0"; texto vai para o rótulo com '§z' na
+  // frente, para o cliente não tratar "12" como número.
+  //
+  // O nome é único na tela de propósito: os consumidores acham este controle por
+  // source_control_name, sem depender de onde estão na árvore.
   "dados": {
     "type": "panel",
     "size": [ 0, 0 ],
-    "$prefixo": "rpgh:",
     "bindings": [
       { "binding_name": "#hud_title_text_string" },
       {
@@ -33,21 +44,20 @@
       },
       {
         "binding_type": "view",
-        "source_property_name": "(not (#hud_title_text_string = #preserved_text) and not ((#hud_title_text_string - $prefixo) = #hud_title_text_string))",
+        "source_property_name": "(not (#hud_title_text_string = #preserved_text) and not ((#hud_title_text_string - 'rpgh:') = #hud_title_text_string))",
         "target_property_name": "#visible"
       },
-      { "binding_type": "view", "source_property_name": "(#preserved_text - $prefixo)", "target_property_name": "#s" },
-      { "binding_type": "view", "source_property_name": "(not (#s = ''))", "target_property_name": "#tem_dados" },
-      { "binding_type": "view", "source_property_name": "(('%.4s' * #s) - 'h')", "target_property_name": "#vida" },
-      { "binding_type": "view", "source_property_name": "((('%.8s' * #s) - ('%.4s' * #s)) - 'm')", "target_property_name": "#mana" },
-      { "binding_type": "view", "source_property_name": "((('%.12s' * #s) - ('%.8s' * #s)) - 'x')", "target_property_name": "#xp" },
-      { "binding_type": "view", "source_property_name": "((('%.17s' * #s) - ('%.12s' * #s)) - 'l' - '@')", "target_property_name": "#nivel" },
-      { "binding_type": "view", "source_property_name": "((('%.29s' * #s) - ('%.17s' * #s)) - 'a' - '@')", "target_property_name": "#vida_texto" },
-      { "binding_type": "view", "source_property_name": "((#s - ('%.29s' * #s)) - 'b' - '@')", "target_property_name": "#mana_texto" }
+      { "binding_type": "view", "source_property_name": "(not ((#preserved_text - 'rpgh:') = #preserved_text))", "target_property_name": "#tem_dados" },
+      { "binding_type": "view", "source_property_name": "((('%.9s' * #preserved_text) - ('%.6s' * #preserved_text)) + 0)", "target_property_name": "#vida" },
+      { "binding_type": "view", "source_property_name": "((('%.13s' * #preserved_text) - ('%.10s' * #preserved_text)) + 0)", "target_property_name": "#mana" },
+      { "binding_type": "view", "source_property_name": "((('%.17s' * #preserved_text) - ('%.14s' * #preserved_text)) + 0)", "target_property_name": "#xp" },
+      { "binding_type": "view", "source_property_name": "(('%.22s' * #preserved_text) - ('%.18s' * #preserved_text) - '@')", "target_property_name": "#nivel" },
+      { "binding_type": "view", "source_property_name": "(('%.34s' * #preserved_text) - ('%.23s' * #preserved_text) - '@')", "target_property_name": "#vida_texto" },
+      { "binding_type": "view", "source_property_name": "(#preserved_text - ('%.35s' * #preserved_text) - '@')", "target_property_name": "#mana_texto" }
     ]
   },
 
-  // Sem dado nenhum (HUD desligada no plugin), o painel fica escondido.
+  // Sem dado nenhum (HUD desligada no plugin), o corpo fica escondido.
   "painel": {
     "type": "panel",
     "size": [ 182, 28 ],
@@ -55,14 +65,14 @@
     "anchor_from": "bottom_middle",
     "anchor_to": "bottom_middle",
     "controls": [
-      { "dados@rpgstats_hud.dados": {} },
+      { "rpgstats_hud_dados@rpgstats_hud.dados": {} },
       {
         "corpo@rpgstats_hud.corpo": {
+          "visible": false,
           "bindings": [
             {
               "binding_type": "view",
-              "source_control_name": "dados",
-              "resolve_sibling_scope": true,
+              "source_control_name": "rpgstats_hud_dados",
               "source_property_name": "#tem_dados",
               "target_property_name": "#visible"
             }
@@ -72,10 +82,10 @@
     ]
   },
 
-  // Consumidor de um campo de "dados" (que é irmão dele dentro de "corpo").
+  // Rótulo que mostra um campo de texto dos dados.
   "campo_texto": {
     "type": "label",
-    "text": "#t",
+    "text": "#text",
     "shadow": true,
     "font_scale_factor": 0.7,
     "layer": 5,
@@ -86,10 +96,9 @@
     "bindings": [
       {
         "binding_type": "view",
-        "source_control_name": "dados",
-        "resolve_sibling_scope": true,
-        "source_property_name": "$campo",
-        "target_property_name": "#t"
+        "source_control_name": "rpgstats_hud_dados",
+        "source_property_name": "('§z' + $campo)",
+        "target_property_name": "#text"
       }
     ]
   },
@@ -115,9 +124,8 @@
     "bindings": [
       {
         "binding_type": "view",
-        "source_control_name": "dados",
-        "resolve_sibling_scope": true,
-        "source_property_name": "((100 - ($campo * 1)) / 100)",
+        "source_control_name": "rpgstats_hud_dados",
+        "source_property_name": "((100 - $campo) / 100)",
         "target_property_name": "#clip_ratio"
       }
     ]
@@ -127,7 +135,6 @@
     "type": "panel",
     "size": [ "100%", "100%" ],
     "controls": [
-      { "dados@rpgstats_hud.dados": {} },
       {
         "fundo": {
           "type": "image",
@@ -154,7 +161,7 @@
       {
         "nivel": {
           "type": "label",
-          "text": "#t",
+          "text": "#text",
           "color": [ 0.07, 0.08, 0.11 ],
           "shadow": false,
           "layer": 3,
@@ -166,10 +173,9 @@
           "bindings": [
             {
               "binding_type": "view",
-              "source_control_name": "dados",
-              "resolve_sibling_scope": true,
-              "source_property_name": "#nivel",
-              "target_property_name": "#t"
+              "source_control_name": "rpgstats_hud_dados",
+              "source_property_name": "('§z' + #nivel)",
+              "target_property_name": "#text"
             }
           ]
         }
