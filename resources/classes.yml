@@ -1,0 +1,87 @@
+# ─── Classes ────────────────────────────────────────────────────────────────
+#
+# A classe do jogador. Uma por jogador, trocada com /classe set <jogador> <id>.
+#
+# As classes abaixo são um EXEMPLO pronto para usar; troque por quantas o seu servidor
+# precisar. O plugin não conhece nenhuma delas por nome.
+#
+#   nome           como aparece nas telas e mensagens
+#   descricao      uma linha explicando a classe
+#   atributos      pontos SOMADOS ao valor base. Chaves válidas:
+#                    hp, damage, defense, speed, mana, atk_speed
+#   multiplicadores  fatores aplicados aos valores derivados. Chaves válidas:
+#                    health, damage, defense, speed, mana_max, mana_regen,
+#                    health_regen, xp_gain, atk_speed
+#
+# Multiplicadores de fontes diferentes (classe + rank + títulos + modos) compõem
+# por MULTIPLICAÇÃO: 1.5 de classe com 1.2 de título dá 1.8, não 1.7.
+# Bônus de atributo somam.
+
+lutador:
+  nome: "Lutador"
+  descricao: "Corpo a corpo puro. Bate forte e aguenta o tranco."
+  atributos:
+    hp: 3
+    damage: 3
+    defense: 2
+  multiplicadores:
+    damage: 1.10
+
+tanque:
+  nome: "Tanque"
+  descricao: "Segura a linha de frente. Muita vida, pouco dano."
+  atributos:
+    hp: 8
+    defense: 5
+    damage: -1
+  multiplicadores:
+    health: 1.25
+    defense: 1.20
+    speed: 0.95
+
+assassino:
+  nome: "Assassino"
+  descricao: "Rápido e letal. Frágil se for pego."
+  atributos:
+    damage: 5
+    speed: 4
+    atk_speed: 3
+    hp: -2
+  multiplicadores:
+    damage: 1.15
+    atk_speed: 1.20
+    health: 0.85
+
+mago:
+  nome: "Mago"
+  descricao: "Poço de mana enorme. Vive das habilidades."
+  atributos:
+    mana: 8
+    damage: 2
+    hp: -1
+  multiplicadores:
+    mana_max: 1.40
+    mana_regen: 1.50
+    health: 0.90
+
+curandeiro:
+  nome: "Curandeiro"
+  descricao: "Regenera rápido e sustenta o grupo."
+  atributos:
+    mana: 5
+    hp: 3
+    defense: 1
+  multiplicadores:
+    health_regen: 1.80
+    mana_regen: 1.30
+
+atirador:
+  nome: "Atirador"
+  descricao: "Dano à distância, com bastante velocidade de ataque."
+  atributos:
+    damage: 4
+    atk_speed: 4
+    speed: 2
+    defense: -1
+  multiplicadores:
+    atk_speed: 1.15

@@ -1,0 +1,224 @@
+{
+  // HUD do RPGStats: nível, vida, mana e XP numa faixa acima da barra de itens.
+  //
+  // Contrato com o plugin (src/RPGStats/Manager/HudManager.php): um título só,
+  //
+  //   rpgh:hVVVmVVVxVVVlNNNNaTTTTTTTTTTTbTTTTTTTTTTT
+  //
+  //   h + 3 dígitos   vida em % (000-100)
+  //   m + 3 dígitos   mana em %
+  //   x + 3 dígitos   XP do nível em %
+  //   l + 4           nível, completado com "@"
+  //   a + 11          vida em texto ("34/40"), completada com "@"
+  //   b + 11          mana em texto, completada com "@"
+  //
+  // Tudo ASCII e de largura fixa, porque a UI só sabe cortar texto pelo começo
+  // ('%.Ns'). A letra na frente de cada campo impede que um prefixo apareça de novo
+  // mais adiante ("100100" sem as letras perderia os dois campos na subtração).
+  // Um título só, e não um por valor, para nenhum dado se perder quando vários
+  // mudam no mesmo tick.
+  "namespace": "rpgstats_hud",
+
+  // Guarda o último título "rpgh:" e expõe os campos já cortados.
+  "dados": {
+    "type": "panel",
+    "size": [ 0, 0 ],
+    "$prefixo": "rpgh:",
+    "bindings": [
+      { "binding_name": "#hud_title_text_string" },
+      {
+        "binding_name": "#hud_title_text_string",
+        "binding_name_override": "#preserved_text",
+        "binding_condition": "visibility_changed"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "(not (#hud_title_text_string = #preserved_text) and not ((#hud_title_text_string - $prefixo) = #hud_title_text_string))",
+        "target_property_name": "#visible"
+      },
+      { "binding_type": "view", "source_property_name": "(#preserved_text - $prefixo)", "target_property_name": "#s" },
+      { "binding_type": "view", "source_property_name": "(not (#s = ''))", "target_property_name": "#tem_dados" },
+      { "binding_type": "view", "source_property_name": "(('%.4s' * #s) - 'h')", "target_property_name": "#vida" },
+      { "binding_type": "view", "source_property_name": "((('%.8s' * #s) - ('%.4s' * #s)) - 'm')", "target_property_name": "#mana" },
+      { "binding_type": "view", "source_property_name": "((('%.12s' * #s) - ('%.8s' * #s)) - 'x')", "target_property_name": "#xp" },
+      { "binding_type": "view", "source_property_name": "((('%.17s' * #s) - ('%.12s' * #s)) - 'l' - '@')", "target_property_name": "#nivel" },
+      { "binding_type": "view", "source_property_name": "((('%.29s' * #s) - ('%.17s' * #s)) - 'a' - '@')", "target_property_name": "#vida_texto" },
+      { "binding_type": "view", "source_property_name": "((#s - ('%.29s' * #s)) - 'b' - '@')", "target_property_name": "#mana_texto" }
+    ]
+  },
+
+  // Sem dado nenhum (HUD desligada no plugin), o painel fica escondido.
+  "painel": {
+    "type": "panel",
+    "size": [ 182, 28 ],
+    "offset": [ 0, -58 ],
+    "anchor_from": "bottom_middle",
+    "anchor_to": "bottom_middle",
+    "controls": [
+      { "dados@rpgstats_hud.dados": {} },
+      {
+        "corpo@rpgstats_hud.corpo": {
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "dados",
+              "resolve_sibling_scope": true,
+              "source_property_name": "#tem_dados",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      }
+    ]
+  },
+
+  // Consumidor de um campo de "dados" (que é irmão dele dentro de "corpo").
+  "campo_texto": {
+    "type": "label",
+    "text": "#t",
+    "shadow": true,
+    "font_scale_factor": 0.7,
+    "layer": 5,
+    "anchor_from": "top_right",
+    "anchor_to": "top_right",
+    "text_alignment": "right",
+    "size": [ 70, 7 ],
+    "bindings": [
+      {
+        "binding_type": "view",
+        "source_control_name": "dados",
+        "resolve_sibling_scope": true,
+        "source_property_name": "$campo",
+        "target_property_name": "#t"
+      }
+    ]
+  },
+
+  "trilho": {
+    "type": "image",
+    "texture": "textures/ui/rpgstats/trilho",
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "layer": 2
+  },
+
+  "preenchimento": {
+    "type": "image",
+    "texture": "textures/ui/rpgstats/barra",
+    "keep_ratio": false,
+    "color": "$cor",
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "layer": 3,
+    "clip_direction": "left",
+    "clip_pixelperfect": false,
+    "bindings": [
+      {
+        "binding_type": "view",
+        "source_control_name": "dados",
+        "resolve_sibling_scope": true,
+        "source_property_name": "((100 - ($campo * 1)) / 100)",
+        "target_property_name": "#clip_ratio"
+      }
+    ]
+  },
+
+  "corpo": {
+    "type": "panel",
+    "size": [ "100%", "100%" ],
+    "controls": [
+      { "dados@rpgstats_hud.dados": {} },
+      {
+        "fundo": {
+          "type": "image",
+          "texture": "textures/ui/rpgstats/painel",
+          "alpha": 0.92,
+          "size": [ "100%", "100%" ],
+          "layer": 1
+        }
+      },
+
+      // Emblema de nível
+      {
+        "emblema": {
+          "type": "image",
+          "texture": "textures/ui/rpgstats/branco",
+          "color": [ 1.0, 0.77, 0.3 ],
+          "size": [ 22, 22 ],
+          "offset": [ 3, 3 ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "layer": 2
+        }
+      },
+      {
+        "nivel": {
+          "type": "label",
+          "text": "#t",
+          "color": [ 0.07, 0.08, 0.11 ],
+          "shadow": false,
+          "layer": 3,
+          "size": [ 22, 10 ],
+          "offset": [ 3, 10 ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "text_alignment": "center",
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "dados",
+              "resolve_sibling_scope": true,
+              "source_property_name": "#nivel",
+              "target_property_name": "#t"
+            }
+          ]
+        }
+      },
+
+      // Vida
+      { "vida_trilho@rpgstats_hud.trilho": { "size": [ 150, 8 ], "offset": [ 29, 3 ] } },
+      { "vida_barra@rpgstats_hud.preenchimento": { "size": [ 150, 8 ], "offset": [ 29, 3 ], "$cor": [ 0.93, 0.3, 0.35 ], "$campo": "#vida" } },
+      {
+        "vida_icone": {
+          "type": "image",
+          "texture": "textures/ui/rpgstats/hud_vida",
+          "size": [ 6, 6 ],
+          "offset": [ 31, 4 ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "layer": 4
+        }
+      },
+      { "vida_texto@rpgstats_hud.campo_texto": { "offset": [ -5, 4 ], "$campo": "#vida_texto" } },
+
+      // Mana
+      { "mana_trilho@rpgstats_hud.trilho": { "size": [ 150, 8 ], "offset": [ 29, 13 ] } },
+      { "mana_barra@rpgstats_hud.preenchimento": { "size": [ 150, 8 ], "offset": [ 29, 13 ], "$cor": [ 0.42, 0.56, 1.0 ], "$campo": "#mana" } },
+      {
+        "mana_icone": {
+          "type": "image",
+          "texture": "textures/ui/rpgstats/hud_mana",
+          "size": [ 6, 6 ],
+          "offset": [ 31, 14 ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "layer": 4
+        }
+      },
+      { "mana_texto@rpgstats_hud.campo_texto": { "offset": [ -5, 14 ], "$campo": "#mana_texto" } },
+
+      // XP do nível
+      // 2 px é menos que as bordas do nine-slice do trilho: aqui o fundo é liso.
+      {
+        "xp_trilho@rpgstats_hud.trilho": {
+          "texture": "textures/ui/rpgstats/solido",
+          "keep_ratio": false,
+          "color": [ 0.04, 0.05, 0.07 ],
+          "size": [ 150, 2 ],
+          "offset": [ 29, 23 ]
+        }
+      },
+      { "xp_barra@rpgstats_hud.preenchimento": { "size": [ 150, 2 ], "offset": [ 29, 23 ], "$cor": [ 0.49, 0.86, 0.35 ], "$campo": "#xp" } }
+    ]
+  }
+}

@@ -1,0 +1,107 @@
+# ─── Modos ──────────────────────────────────────────────────────────────────
+#
+# Transformações que o jogador liga com /modo <id> e desliga com o mesmo comando.
+# Enquanto ligado, o modo dá bônus e consome mana a cada ciclo.
+#
+#   nome                  como aparece nas telas
+#   descricao             uma linha explicando o modo
+#   grupo                 modos do mesmo grupo não ficam ligados juntos: ligar um
+#                         desliga o outro. Sem grupo, cada modo é o seu próprio.
+#   permissao             quem não tiver, não liga. "" = liberado
+#   nivel-requerido       nível mínimo do jogador
+#   atributos             pontos somados enquanto o modo está ligado
+#   multiplicadores       fatores compostos enquanto ligado
+#   custo-mana-por-ciclo  mana cobrada a cada ciclo (veja modos.intervalo-ticks
+#                         no config.yml). Mana acabou, modo desliga sozinho
+#   duracao-segundos      desliga sozinho depois disso; 0 = enquanto houver mana
+#   efeitos               efeitos de poção aplicados, "nome:amplificador"
+#                         (amplificador 0 = nível I). Ex.: speed:1, strength:0
+#
+# As chaves de atributos e multiplicadores são as mesmas de classes.yml.
+#
+# Os modos abaixo são um EXEMPLO, escolhidos para cobrir os formatos possíveis: barato e
+# permanente, troca de defesa por dano, o inverso, um com duração fixa e um trancado por
+# permissão.
+
+concentracao:
+  nome: "Concentração"
+  descricao: "Foca a energia no corpo. Barato e sempre útil."
+  grupo: combate
+  nivel-requerido: 1
+  atributos:
+    damage: 3
+    atk_speed: 2
+  custo-mana-por-ciclo: 1
+  duracao-segundos: 0
+
+furia:
+  nome: "Fúria"
+  descricao: "Troca defesa por dano bruto."
+  grupo: combate
+  nivel-requerido: 10
+  atributos:
+    damage: 12
+    speed: 3
+    defense: -5
+  multiplicadores:
+    damage: 1.25
+    defense: 0.75
+  custo-mana-por-ciclo: 3
+  duracao-segundos: 0
+  efeitos:
+    - "strength:0"
+
+pele_de_pedra:
+  nome: "Pele de Pedra"
+  descricao: "O inverso da Fúria: vira um muro, lento e duro de derrubar."
+  grupo: combate
+  nivel-requerido: 10
+  atributos:
+    defense: 15
+    hp: 10
+    speed: -3
+  multiplicadores:
+    defense: 1.40
+    speed: 0.80
+  custo-mana-por-ciclo: 3
+  duracao-segundos: 0
+  efeitos:
+    - "resistance:0"
+
+impeto:
+  nome: "Ímpeto"
+  descricao: "Exemplo de modo com duração fixa: 20 segundos e acaba sozinho."
+  grupo: mobilidade
+  nivel-requerido: 20
+  atributos:
+    speed: 10
+    atk_speed: 5
+  multiplicadores:
+    speed: 1.30
+  custo-mana-por-ciclo: 8
+  duracao-segundos: 20
+  efeitos:
+    - "speed:1"
+
+despertar:
+  nome: "Despertar"
+  descricao: "Exemplo de modo trancado por permissão. Caro de manter."
+  grupo: combate
+  permissao: "rpgstats.modo.despertar"
+  nivel-requerido: 50
+  atributos:
+    hp: 40
+    damage: 30
+    defense: 20
+    speed: 6
+    atk_speed: 8
+  multiplicadores:
+    damage: 1.50
+    health: 1.30
+    defense: 1.30
+  custo-mana-por-ciclo: 20
+  duracao-segundos: 0
+  efeitos:
+    - "strength:1"
+    - "speed:0"
+    - "resistance:0"

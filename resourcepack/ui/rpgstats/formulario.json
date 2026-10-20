@@ -1,0 +1,257 @@
+{
+  // Formulário de lista (simple form) do RPGStats: mesma linguagem visual da ficha.
+  // Os botões vêm da coleção padrão "form_buttons", na ordem em que o plugin mandou,
+  // então o índice que volta para o servidor é o mesmo do vanilla.
+  "namespace": "rpgstats_form",
+
+  "raiz": {
+    "type": "panel",
+    "size": [ 270, 220 ],
+    "layer": 2,
+    "$acento": [ 0.36, 0.62, 1.0 ],
+    "controls": [
+      {
+        "fundo": {
+          "type": "image",
+          "texture": "textures/ui/rpgstats/painel",
+          "size": [ "100%", "100%" ],
+          "layer": 1
+        }
+      },
+      {
+        "titulo": {
+          "type": "label",
+          "text": "#titulo",
+          "color": [ 0.95, 0.96, 0.99 ],
+          "shadow": false,
+          "layer": 2,
+          "offset": [ 10, 9 ],
+          "size": [ 224, 10 ],
+          "text_alignment": "left",
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "bindings": [
+            { "binding_name": "#title_text" },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - '§r§p§g§r')",
+              "target_property_name": "#titulo"
+            }
+          ]
+        }
+      },
+      {
+        "fechar@rpgstats_form.botao_fechar": {
+          "layer": 2,
+          "anchor_from": "top_right",
+          "anchor_to": "top_right",
+          "offset": [ -6, 6 ]
+        }
+      },
+      {
+        "divisor": {
+          "type": "image",
+          "texture": "textures/ui/rpgstats/solido",
+          "keep_ratio": false,
+          "color": "$acento",
+          "alpha": 0.35,
+          "size": [ "100% - 16px", 1 ],
+          "offset": [ 0, 26 ],
+          "anchor_from": "top_middle",
+          "anchor_to": "top_middle",
+          "layer": 2
+        }
+      },
+      {
+        "rolagem@common.scrolling_panel": {
+          "layer": 2,
+          "size": [ "100% - 12px", "100% - 36px" ],
+          "offset": [ 0, 31 ],
+          "anchor_from": "top_middle",
+          "anchor_to": "top_middle",
+          "$show_background": false,
+          "$scrolling_content": "rpgstats_form.conteudo",
+          "$scroll_size": [ 3, "100% - 4px" ],
+          "$scroll_size_touch": [ 3, "100% - 4px" ],
+          "$scrolling_pane_size": [ "100% - 4px", "100%" ],
+          "$scroll_bar_right_padding_size": [ 0, 0 ]
+        }
+      }
+    ],
+    "bindings": [
+      { "binding_name": "#title_text" },
+      {
+        "binding_type": "view",
+        "source_property_name": "(not ((#title_text - '§r§p§g§r') = #title_text))",
+        "target_property_name": "#visible"
+      }
+    ]
+  },
+
+  "conteudo": {
+    "type": "stack_panel",
+    "orientation": "vertical",
+    "size": [ "100% - 5px", "100%c" ],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "controls": [
+      {
+        "corpo": {
+          "type": "panel",
+          "size": [ "100%", "100%c + 6px" ],
+          "controls": [
+            {
+              "texto": {
+                "type": "label",
+                "text": "#form_text",
+                "color": [ 0.8, 0.83, 0.9 ],
+                "shadow": false,
+                "size": [ "100% - 4px", "default" ],
+                "text_alignment": "left",
+                "offset": [ 2, 1 ],
+                "anchor_from": "top_left",
+                "anchor_to": "top_left",
+                "bindings": [ { "binding_name": "#form_text" } ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "botoes": {
+          "type": "stack_panel",
+          "orientation": "vertical",
+          "size": [ "100%", "100%c" ],
+          "factory": {
+            "name": "buttons",
+            "control_ids": {
+              "button": "@rpgstats_form.botao",
+              "label": "@server_form.dynamic_label",
+              "header": "@server_form.dynamic_header",
+              "divider": "@settings_common.option_group_section_divider"
+            }
+          },
+          "collection_name": "form_buttons",
+          "bindings": [
+            {
+              "binding_name": "#form_button_contents",
+              "binding_name_override": "#collection_length"
+            }
+          ]
+        }
+      }
+    ]
+  },
+
+  "botao": {
+    "type": "panel",
+    "size": [ "100%", 31 ],
+    "controls": [
+      {
+        "botao@common.button": {
+          "$pressed_button_name": "button.form_button_click",
+          "size": [ "100%", 28 ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "controls": [
+            {
+              "default": {
+                "type": "panel",
+                "size": [ "100%", "100%" ],
+                "controls": [
+                  { "fundo": { "type": "image", "texture": "textures/ui/rpgstats/cartao", "size": [ "100%", "100%" ], "layer": 1 } },
+                  { "conteudo@rpgstats_form.rotulo_botao": { "layer": 3 } }
+                ]
+              }
+            },
+            {
+              "hover": {
+                "type": "panel",
+                "size": [ "100%", "100%" ],
+                "controls": [
+                  { "fundo": { "type": "image", "texture": "textures/ui/rpgstats/cartao_hover", "size": [ "100%", "100%" ], "layer": 1 } },
+                  { "realce": { "type": "image", "texture": "textures/ui/rpgstats/contorno", "color": "$acento", "size": [ "100%", "100%" ], "layer": 2 } },
+                  { "marca": { "type": "image", "texture": "textures/ui/rpgstats/solido", "keep_ratio": false, "color": "$acento", "size": [ 2, "100% - 12px" ], "offset": [ 3, 0 ], "anchor_from": "left_middle", "anchor_to": "left_middle", "layer": 2 } },
+                  { "conteudo@rpgstats_form.rotulo_botao": { "layer": 3 } }
+                ]
+              }
+            },
+            {
+              "pressed": {
+                "type": "panel",
+                "size": [ "100%", "100%" ],
+                "controls": [
+                  { "fundo": { "type": "image", "texture": "textures/ui/rpgstats/cartao_pressionado", "size": [ "100%", "100%" ], "layer": 1 } },
+                  { "realce": { "type": "image", "texture": "textures/ui/rpgstats/contorno", "color": "$acento", "alpha": 0.6, "size": [ "100%", "100%" ], "layer": 2 } },
+                  { "conteudo@rpgstats_form.rotulo_botao": { "layer": 3 } }
+                ]
+              }
+            }
+          ],
+          "bindings": [
+            {
+              "binding_type": "collection_details",
+              "binding_collection_name": "form_buttons"
+            }
+          ]
+        }
+      }
+    ]
+  },
+
+  "rotulo_botao": {
+    "type": "label",
+    "text": "#form_button_text",
+    "color": [ 0.93, 0.95, 0.98 ],
+    "shadow": false,
+    "font_scale_factor": 0.9,
+    "size": [ "100% - 20px", 18 ],
+    "text_alignment": "left",
+    "offset": [ 10, 0 ],
+    "anchor_from": "left_middle",
+    "anchor_to": "left_middle",
+    "bindings": [
+      {
+        "binding_name": "#form_button_text",
+        "binding_type": "collection",
+        "binding_collection_name": "form_buttons"
+      }
+    ]
+  },
+
+  "botao_fechar@common.button": {
+    "$pressed_button_name": "button.menu_exit",
+    "size": [ 16, 16 ],
+    "controls": [
+      { "default": { "type": "panel", "size": [ "100%", "100%" ], "controls": [ { "x@rpgstats_form.x_fechar": {} } ] } },
+      {
+        "hover": {
+          "type": "panel",
+          "size": [ "100%", "100%" ],
+          "controls": [
+            { "fundo": { "type": "image", "texture": "textures/ui/rpgstats/cartao_hover", "size": [ "100%", "100%" ], "layer": 1 } },
+            { "realce": { "type": "image", "texture": "textures/ui/rpgstats/contorno", "color": "$acento", "size": [ "100%", "100%" ], "layer": 2 } },
+            { "x@rpgstats_form.x_fechar": { "layer": 3 } }
+          ]
+        }
+      },
+      {
+        "pressed": {
+          "type": "panel",
+          "size": [ "100%", "100%" ],
+          "controls": [
+            { "fundo": { "type": "image", "texture": "textures/ui/rpgstats/cartao_pressionado", "size": [ "100%", "100%" ], "layer": 1 } },
+            { "x@rpgstats_form.x_fechar": { "layer": 3 } }
+          ]
+        }
+      }
+    ]
+  },
+
+  "x_fechar": {
+    "type": "image",
+    "texture": "textures/ui/rpgstats/fechar",
+    "color": [ 0.75, 0.78, 0.86 ],
+    "size": [ 8, 8 ]
+  }
+}

@@ -1,0 +1,78 @@
+# ─── Ranks ──────────────────────────────────────────────────────────────────
+#
+# O rank do jogador. Um por jogador, trocado com /rank set <jogador> <id>.
+# Mesmo formato de classes.yml.
+#
+# Rank é a escada comum de progressão: quem sobe ganha um pouco de tudo, em vez de se
+# especializar. Quem se especializa é a classe.
+#
+# A escada abaixo é um EXEMPLO. Use os degraus que o seu servidor quiser — o plugin não
+# conhece nenhum deles por nome.
+
+e:
+  nome: "Rank E"
+  descricao: "O degrau inicial. Todo mundo começa aqui."
+
+d:
+  nome: "Rank D"
+  descricao: "Já se vira sozinho."
+  atributos:
+    hp: 2
+    damage: 1
+  multiplicadores:
+    xp_gain: 1.05
+
+c:
+  nome: "Rank C"
+  descricao: "Competente. Aguenta um desafio de verdade."
+  atributos:
+    hp: 5
+    damage: 3
+    defense: 2
+    mana: 2
+  multiplicadores:
+    xp_gain: 1.10
+
+b:
+  nome: "Rank B"
+  descricao: "Nome conhecido no servidor."
+  atributos:
+    hp: 10
+    damage: 6
+    defense: 4
+    mana: 5
+    speed: 2
+  multiplicadores:
+    xp_gain: 1.20
+    health: 1.05
+
+a:
+  nome: "Rank A"
+  descricao: "Elite. Poucos chegam aqui."
+  atributos:
+    hp: 18
+    damage: 12
+    defense: 8
+    mana: 10
+    speed: 4
+    atk_speed: 3
+  multiplicadores:
+    xp_gain: 1.35
+    health: 1.15
+    damage: 1.10
+
+s:
+  nome: "Rank S"
+  descricao: "O topo da escada."
+  atributos:
+    hp: 35
+    damage: 25
+    defense: 18
+    mana: 25
+    speed: 8
+    atk_speed: 6
+  multiplicadores:
+    xp_gain: 1.60
+    health: 1.30
+    damage: 1.25
+    mana_max: 1.25

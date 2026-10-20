@@ -1,0 +1,56 @@
+name: RPGStats
+main: RPGStats\RPGStatsPlugin
+version: 2.0.0
+api: 5.0.0
+author: UnknownMaker-dev
+description: Sistema de atributos de RPG (vida, dano, defesa, velocidade, mana, vel. de ataque) com classes, ranks, titulos, modos e habilidades upaveis. Tudo em YAML.
+
+# Os comandos sao registrados no codigo (cada um estende Command), nao aqui.
+# /stats /mana /classe /rank /titulo /pontos /nivel /treino /habilidade /modo
+
+permissions:
+  rpgstats.stats:
+    description: "Permite ver a propria ficha com /stats"
+    default: true
+  rpgstats.stats.admin:
+    description: "Permite alterar os status de outros jogadores"
+    default: op
+  rpgstats.mana:
+    description: "Permite usar o comando /mana"
+    default: op
+  rpgstats.classe:
+    description: "Permite usar o comando /classe"
+    default: op
+  rpgstats.rank:
+    description: "Permite usar o comando /rank"
+    default: op
+  rpgstats.titulo:
+    description: "Permite ver os proprios titulos e escolher qual exibir"
+    default: true
+  rpgstats.titulo.admin:
+    description: "Permite dar e tirar titulos de outros jogadores"
+    default: op
+  rpgstats.points:
+    description: "Permite ver e gastar os proprios pontos com /pontos"
+    default: true
+  rpgstats.points.admin:
+    description: "Permite dar, tirar e definir pontos de outros jogadores"
+    default: op
+  rpgstats.level:
+    description: "Permite ver o proprio nivel com /nivel"
+    default: true
+  rpgstats.level.admin:
+    description: "Permite alterar o XP de outros jogadores"
+    default: op
+  rpgstats.training:
+    description: "Permite ver e gastar o proprio TP com /treino"
+    default: true
+  rpgstats.training.admin:
+    description: "Permite dar, tirar e definir TP de outros jogadores"
+    default: op
+  rpgstats.habilidade:
+    description: "Permite ver, evoluir e usar as proprias habilidades"
+    default: true
+  rpgstats.modo:
+    description: "Permite ligar e desligar os proprios modos"
+    default: true

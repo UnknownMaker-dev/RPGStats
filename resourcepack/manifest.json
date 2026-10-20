@@ -1,0 +1,30 @@
+{
+    "format_version": 1,
+    "header": {
+        "description": "Interface do RPGStats: ficha, HUD e formulários",
+        "name": "RPGStats §b[UI]",
+        "uuid": "49fb11ff-45ab-40d5-9711-cb662bc135fa",
+        "version": [
+            2,
+            0,
+            0
+        ],
+        "min_engine_version": [
+            1,
+            21,
+            0
+        ]
+    },
+    "modules": [
+        {
+            "description": "Interface",
+            "type": "resources",
+            "uuid": "6ad048ee-f3eb-4542-88e0-428aa8cc5e18",
+            "version": [
+                2,
+                0,
+                0
+            ]
+        }
+    ]
+}

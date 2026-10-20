@@ -1,0 +1,782 @@
+{
+  // A ficha do /stats, desenhada em cima da tela de diálogo de NPC.
+  //
+  // Contrato com o plugin (src/RPGStats/Form/DialogueMenu.php) — os dois lados mudam juntos:
+  //
+  //   nome do diálogo   "rpgstats|<aba>|t:<tema>|"   aba = ficha, detalhes ou bonus
+  //   texto do diálogo  dica do rodapé (aba ficha) ou o corpo das abas de texto
+  //   botões 0-5        cartões dos atributos: VALOR(6) + NOME(12) + resto,
+  //                     os dois primeiros campos completados com "@" (só ASCII)
+  //   botão  6          fechar
+  //   botões 7, 8, 9    menos, quantidade, mais
+  //   botões 10-12      abas ficha, detalhes, bonus
+  //   botões 13-19      só texto: nome, subtítulo, nível, XP em %, XP em texto,
+  //                     pontos, TP (não são desenhados como botão)
+  "namespace": "rpgstats_ficha",
+
+  // ---------------------------------------------------------------------------
+  // Raiz: só aparece quando o nome do diálogo traz "rpgstats|".
+  // Um painel por tema; cada um só acende com o token do seu tema.
+  // ---------------------------------------------------------------------------
+  "raiz": {
+    "type": "panel",
+    "size": [ "100%", "100%" ],
+    "layer": 20,
+    "controls": [
+      {
+        "veu": {
+          "type": "image",
+          "texture": "textures/ui/rpgstats/solido",
+          "keep_ratio": false,
+          "color": [ 0.0, 0.0, 0.0 ],
+          "alpha": 0.55,
+          "size": [ "100%", "100%" ]
+        }
+      },
+      { "aurora@rpgstats_ficha.janela": { "$tema": "|t:aurora|", "$acento": [ 0.36, 0.62, 1.0 ] } },
+      { "esmeralda@rpgstats_ficha.janela": { "$tema": "|t:esmeralda|", "$acento": [ 0.24, 0.86, 0.6 ] } },
+      { "rubi@rpgstats_ficha.janela": { "$tema": "|t:rubi|", "$acento": [ 1.0, 0.38, 0.48 ] } },
+      { "ametista@rpgstats_ficha.janela": { "$tema": "|t:ametista|", "$acento": [ 0.7, 0.5, 1.0 ] } },
+      { "ambar@rpgstats_ficha.janela": { "$tema": "|t:ambar|", "$acento": [ 1.0, 0.72, 0.3 ] } }
+    ],
+    "bindings": [
+      { "binding_name": "#title_text", "binding_type": "global" },
+      {
+        "binding_type": "view",
+        "source_property_name": "(not ((#title_text - 'rpgstats|') = #title_text))",
+        "target_property_name": "#visible"
+      }
+    ]
+  },
+
+  "janela": {
+    "type": "panel",
+    "size": [ 310, 204 ],
+    "$acento|default": [ 0.36, 0.62, 1.0 ],
+    "controls": [
+      {
+        "fundo": {
+          "type": "image",
+          "texture": "textures/ui/rpgstats/painel",
+          "size": [ "100%", "100%" ],
+          "layer": 1
+        }
+      },
+      {
+        "conteudo": {
+          "type": "panel",
+          "size": [ 294, 192 ],
+          "layer": 2,
+          "controls": [
+            { "cabecalho@rpgstats_ficha.cabecalho": {} },
+            { "xp@rpgstats_ficha.barra_xp": {} },
+            { "abas@rpgstats_ficha.abas": {} },
+            { "moedas@rpgstats_ficha.moedas": {} },
+            { "atributos@rpgstats_ficha.aba_atributos": {} },
+            { "texto@rpgstats_ficha.aba_texto": {} }
+          ]
+        }
+      }
+    ],
+    "bindings": [
+      { "binding_name": "#title_text", "binding_type": "global" },
+      {
+        "binding_type": "view",
+        "source_property_name": "(not ((#title_text - $tema) = #title_text))",
+        "target_property_name": "#visible"
+      }
+    ]
+  },
+
+  // ---------------------------------------------------------------------------
+  // Peças reutilizadas
+  // ---------------------------------------------------------------------------
+  "vazio": { "type": "panel", "size": [ 0, 0 ] },
+
+  // Texto de um item da coleção de botões (precisa de collection_index acima).
+  "texto_slot": {
+    "type": "label",
+    "text": "#student_button_text",
+    "$cor|default": [ 0.93, 0.95, 0.98 ],
+    "color": "$cor",
+    "shadow": false,
+    "bindings": [
+      {
+        "binding_name": "#student_button_text",
+        "binding_type": "collection",
+        "binding_collection_name": "student_buttons_collection"
+      }
+    ]
+  },
+
+  // Contorno na cor do tema, desenhado por cima do fundo no hover/pressionado.
+  "realce": {
+    "type": "image",
+    "texture": "textures/ui/rpgstats/contorno",
+    "color": "$acento",
+    "size": [ "100%", "100%" ]
+  },
+
+  // Botão da coleção do diálogo. O miolo vem de $conteudo e é o mesmo nos três
+  // estados: o estado muda só o fundo e o contorno, nunca o que está escrito.
+  "botao@common.button": {
+    "$pressed_button_name": "button.student_button",
+    "$conteudo|default": "rpgstats_ficha.vazio",
+    "$realce|default": "rpgstats_ficha.realce",
+    "$fundo|default": "textures/ui/rpgstats/cartao",
+    "$fundo_hover|default": "textures/ui/rpgstats/cartao_hover",
+    "$fundo_pressionado|default": "textures/ui/rpgstats/cartao_pressionado",
+    "$alpha_fundo|default": 1.0,
+    "controls": [
+      {
+        "default": {
+          "type": "panel",
+          "size": [ "100%", "100%" ],
+          "controls": [
+            { "fundo": { "type": "image", "texture": "$fundo", "alpha": "$alpha_fundo", "size": [ "100%", "100%" ], "layer": 1 } },
+            { "conteudo@$conteudo": { "layer": 3 } }
+          ]
+        }
+      },
+      {
+        "hover": {
+          "type": "panel",
+          "size": [ "100%", "100%" ],
+          "controls": [
+            { "fundo": { "type": "image", "texture": "$fundo_hover", "size": [ "100%", "100%" ], "layer": 1 } },
+            { "realce@$realce": { "layer": 2 } },
+            { "conteudo@$conteudo": { "layer": 3 } }
+          ]
+        }
+      },
+      {
+        "pressed": {
+          "type": "panel",
+          "size": [ "100%", "100%" ],
+          "controls": [
+            { "fundo": { "type": "image", "texture": "$fundo_pressionado", "size": [ "100%", "100%" ], "layer": 1 } },
+            { "realce@$realce": { "layer": 2, "alpha": 0.6 } },
+            { "conteudo@$conteudo": { "layer": 3 } }
+          ]
+        }
+      }
+    ],
+    "bindings": [
+      {
+        "binding_type": "collection_details",
+        "binding_collection_name": "student_buttons_collection",
+        "binding_collection_prefix": "student_buttons"
+      }
+    ]
+  },
+
+  "glifo": {
+    "type": "image",
+    "texture": "$glifo",
+    "$tamanho_glifo|default": [ 7, 7 ],
+    "$cor_glifo|default": [ 0.85, 0.88, 0.94 ],
+    "size": "$tamanho_glifo",
+    "color": "$cor_glifo"
+  },
+
+  // ---------------------------------------------------------------------------
+  // Cabeçalho: emblema de nível, nome, subtítulo, XP e fechar
+  // ---------------------------------------------------------------------------
+  "cabecalho": {
+    "type": "collection_panel",
+    "collection_name": "student_buttons_collection",
+    "size": [ "100%", 26 ],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "controls": [
+      {
+        "emblema": {
+          "type": "image",
+          "texture": "textures/ui/rpgstats/branco",
+          "color": "$acento",
+          "size": [ 24, 24 ],
+          "offset": [ 0, 1 ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "collection_index": 15,
+          "controls": [
+            {
+              "nivel@rpgstats_ficha.texto_slot": {
+                "$cor": [ 0.06, 0.07, 0.1 ],
+                "layer": 1,
+                "size": [ 24, 9 ],
+                "text_alignment": "center",
+                "offset": [ 0, 1 ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "nome@rpgstats_ficha.texto_slot": {
+          "collection_index": 13,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [ 31, 3 ],
+          "size": [ 170, 10 ],
+          "text_alignment": "left"
+        }
+      },
+      {
+        "subtitulo@rpgstats_ficha.texto_slot": {
+          "collection_index": 14,
+          "$cor": [ 0.58, 0.62, 0.71 ],
+          "font_scale_factor": 0.8,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [ 31, 15 ],
+          "size": [ 200, 9 ],
+          "text_alignment": "left"
+        }
+      },
+      {
+        "xp_texto@rpgstats_ficha.texto_slot": {
+          "collection_index": 17,
+          "$cor": [ 0.58, 0.62, 0.71 ],
+          "font_scale_factor": 0.8,
+          "size": [ 110, 9 ],
+          "text_alignment": "right",
+          "anchor_from": "top_right",
+          "anchor_to": "top_right",
+          "offset": [ -22, 5 ]
+        }
+      },
+      {
+        "fechar@rpgstats_ficha.botao": {
+          "collection_index": 6,
+          "size": [ 16, 16 ],
+          "anchor_from": "top_right",
+          "anchor_to": "top_right",
+          "offset": [ 0, 1 ],
+          "$alpha_fundo": 0.0,
+          "$conteudo": "rpgstats_ficha.conteudo_fechar"
+        }
+      }
+    ]
+  },
+
+  "conteudo_fechar": {
+    "type": "panel",
+    "size": [ "100%", "100%" ],
+    "controls": [
+      { "x@rpgstats_ficha.glifo": { "$glifo": "textures/ui/rpgstats/fechar", "$tamanho_glifo": [ 8, 8 ], "$cor_glifo": [ 0.75, 0.78, 0.86 ] } }
+    ]
+  },
+
+  // ---------------------------------------------------------------------------
+  // Barra de XP (botão 16 traz a porcentagem, 0 a 100)
+  // ---------------------------------------------------------------------------
+  "barra_xp": {
+    "type": "collection_panel",
+    "collection_name": "student_buttons_collection",
+    "size": [ "100%", 4 ],
+    "offset": [ 0, 30 ],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "controls": [
+      {
+        "trilho": {
+          "type": "image",
+          "texture": "textures/ui/rpgstats/trilho",
+          "size": [ "100%", "100%" ],
+          "layer": 1
+        }
+      },
+      {
+        "preenchimento": {
+          "type": "image",
+          "texture": "textures/ui/rpgstats/barra",
+          "keep_ratio": false,
+          "color": "$acento",
+          "size": [ "100%", "100%" ],
+          "layer": 2,
+          "collection_index": 16,
+          "clip_direction": "left",
+          "clip_pixelperfect": false,
+          "bindings": [
+            {
+              "binding_name": "#student_button_text",
+              "binding_type": "collection",
+              "binding_collection_name": "student_buttons_collection"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "((100 - (#student_button_text * 1)) / 100)",
+              "target_property_name": "#clip_ratio"
+            }
+          ]
+        }
+      }
+    ]
+  },
+
+  // ---------------------------------------------------------------------------
+  // Abas (botões 10-12). A aba ativa é a que está no nome do diálogo.
+  // ---------------------------------------------------------------------------
+  "abas": {
+    "type": "image",
+    "texture": "textures/ui/rpgstats/cartao",
+    "size": [ 184, 18 ],
+    "offset": [ 0, 38 ],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "controls": [
+      {
+        "linha": {
+          "type": "stack_panel",
+          "orientation": "horizontal",
+          "collection_name": "student_buttons_collection",
+          "size": [ "100%", 16 ],
+          "layer": 1,
+          "controls": [
+            { "p0": { "type": "panel", "size": [ 1, 16 ] } },
+            { "ficha@rpgstats_ficha.aba": { "collection_index": 10, "$aba": "|ficha|" } },
+            { "p1": { "type": "panel", "size": [ 1, 16 ] } },
+            { "detalhes@rpgstats_ficha.aba": { "collection_index": 11, "$aba": "|detalhes|" } },
+            { "p2": { "type": "panel", "size": [ 1, 16 ] } },
+            { "bonus@rpgstats_ficha.aba": { "collection_index": 12, "$aba": "|bonus|" } }
+          ]
+        }
+      }
+    ]
+  },
+
+  "aba@rpgstats_ficha.botao": {
+    "size": [ 60, 16 ],
+    "$alpha_fundo": 0.0,
+    "$conteudo": "rpgstats_ficha.conteudo_aba"
+  },
+
+  "conteudo_aba": {
+    "type": "panel",
+    "size": [ "100%", "100%" ],
+    "controls": [
+      {
+        "ativa": {
+          "type": "image",
+          "texture": "textures/ui/rpgstats/branco",
+          "color": "$acento",
+          "size": [ "100%", "100%" ],
+          "layer": 1,
+          "bindings": [
+            { "binding_name": "#title_text", "binding_type": "global" },
+            {
+              "binding_type": "view",
+              "source_property_name": "(not ((#title_text - $aba) = #title_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      { "rotulo_ativo@rpgstats_ficha.rotulo_aba_ativo": { "layer": 2 } },
+      { "rotulo@rpgstats_ficha.rotulo_aba": { "layer": 2 } }
+    ]
+  },
+
+  // Rótulo da aba nas duas versões: escuro sobre o acento (ativa) e cinza (inativa).
+  "rotulo_aba": {
+    "type": "label",
+    "text": "#student_button_text",
+    "color": [ 0.66, 0.7, 0.79 ],
+    "font_scale_factor": 0.85,
+    "size": [ "100%", 9 ],
+    "text_alignment": "center",
+    "shadow": false,
+    "bindings": [
+      {
+        "binding_name": "#student_button_text",
+        "binding_type": "collection",
+        "binding_collection_name": "student_buttons_collection"
+      },
+      { "binding_name": "#title_text", "binding_type": "global" },
+      {
+        "binding_type": "view",
+        "source_property_name": "((#title_text - $aba) = #title_text)",
+        "target_property_name": "#visible"
+      }
+    ]
+  },
+
+  "rotulo_aba_ativo": {
+    "type": "label",
+    "text": "#student_button_text",
+    "color": [ 0.06, 0.07, 0.1 ],
+    "font_scale_factor": 0.85,
+    "size": [ "100%", 9 ],
+    "text_alignment": "center",
+    "shadow": false,
+    "bindings": [
+      {
+        "binding_name": "#student_button_text",
+        "binding_type": "collection",
+        "binding_collection_name": "student_buttons_collection"
+      },
+      { "binding_name": "#title_text", "binding_type": "global" },
+      {
+        "binding_type": "view",
+        "source_property_name": "(not ((#title_text - $aba) = #title_text))",
+        "target_property_name": "#visible"
+      }
+    ]
+  },
+
+  // ---------------------------------------------------------------------------
+  // Moedas: pontos de nível (18) e TP (19)
+  // ---------------------------------------------------------------------------
+  "moedas": {
+    "type": "stack_panel",
+    "orientation": "horizontal",
+    "collection_name": "student_buttons_collection",
+    "size": [ 106, 18 ],
+    "offset": [ 0, 38 ],
+    "anchor_from": "top_right",
+    "anchor_to": "top_right",
+    "controls": [
+      { "pontos@rpgstats_ficha.moeda": { "collection_index": 18, "$glifo": "textures/ui/rpgstats/moeda_pontos", "$cor_glifo": "$acento" } },
+      { "p": { "type": "panel", "size": [ 4, 18 ] } },
+      { "tp@rpgstats_ficha.moeda": { "collection_index": 19, "$glifo": "textures/ui/rpgstats/moeda_tp", "$cor_glifo": [ 1.0, 0.76, 0.3 ] } }
+    ]
+  },
+
+  "moeda": {
+    "type": "image",
+    "texture": "textures/ui/rpgstats/cartao",
+    "size": [ 51, 18 ],
+    "controls": [
+      {
+        "icone@rpgstats_ficha.glifo": {
+          "layer": 1,
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle",
+          "offset": [ 5, 0 ]
+        }
+      },
+      {
+        "valor@rpgstats_ficha.texto_slot": {
+          "layer": 1,
+          "font_scale_factor": 0.8,
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle",
+          "offset": [ 15, 0 ],
+          "size": [ 34, 9 ],
+          "text_alignment": "left"
+        }
+      }
+    ]
+  },
+
+  // ---------------------------------------------------------------------------
+  // Aba "ficha": seis cartões de atributo e o seletor de quantidade
+  // ---------------------------------------------------------------------------
+  "aba_atributos": {
+    "type": "collection_panel",
+    "collection_name": "student_buttons_collection",
+    "size": [ "100%", 130 ],
+    "offset": [ 0, 60 ],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "controls": [
+      { "vida@rpgstats_ficha.cartao": { "collection_index": 0, "offset": [ 0, 0 ], "$icone": "textures/ui/rpgstats/icone_vida", "$cor_atributo": [ 0.94, 0.33, 0.38 ] } },
+      { "dano@rpgstats_ficha.cartao": { "collection_index": 1, "offset": [ 99, 0 ], "$icone": "textures/ui/rpgstats/icone_dano", "$cor_atributo": [ 1.0, 0.58, 0.28 ] } },
+      { "defesa@rpgstats_ficha.cartao": { "collection_index": 2, "offset": [ 198, 0 ], "$icone": "textures/ui/rpgstats/icone_defesa", "$cor_atributo": [ 0.47, 0.66, 0.94 ] } },
+      { "velocidade@rpgstats_ficha.cartao": { "collection_index": 3, "offset": [ 0, 55 ], "$icone": "textures/ui/rpgstats/icone_velocidade", "$cor_atributo": [ 0.28, 0.86, 0.75 ] } },
+      { "mana@rpgstats_ficha.cartao": { "collection_index": 4, "offset": [ 99, 55 ], "$icone": "textures/ui/rpgstats/icone_mana", "$cor_atributo": [ 0.63, 0.47, 1.0 ] } },
+      { "vel_ataque@rpgstats_ficha.cartao": { "collection_index": 5, "offset": [ 198, 55 ], "$icone": "textures/ui/rpgstats/icone_vel_ataque", "$cor_atributo": [ 1.0, 0.82, 0.31 ] } },
+      { "rodape@rpgstats_ficha.rodape": {} }
+    ],
+    "bindings": [
+      { "binding_name": "#title_text", "binding_type": "global" },
+      {
+        "binding_type": "view",
+        "source_property_name": "(not ((#title_text - '|ficha|') = #title_text))",
+        "target_property_name": "#visible"
+      }
+    ]
+  },
+
+  "cartao@rpgstats_ficha.botao": {
+    "size": [ 96, 52 ],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "$conteudo": "rpgstats_ficha.conteudo_cartao",
+    "$realce": "rpgstats_ficha.realce_compra"
+  },
+
+  "realce_compra": {
+    "type": "panel",
+    "size": [ "100%", "100%" ],
+    "controls": [
+      { "contorno@rpgstats_ficha.realce": {} },
+      {
+        "mais": {
+          "type": "image",
+          "texture": "textures/ui/rpgstats/branco",
+          "color": "$acento",
+          "size": [ 11, 11 ],
+          "anchor_from": "top_right",
+          "anchor_to": "top_right",
+          "offset": [ -5, 5 ],
+          "controls": [
+            { "glifo@rpgstats_ficha.glifo": { "layer": 1, "$glifo": "textures/ui/rpgstats/mais", "$cor_glifo": [ 0.06, 0.07, 0.1 ] } }
+          ]
+        }
+      }
+    ]
+  },
+
+  // Campos do texto do botão: '%.6s' é o valor, os 12 seguintes o nome, o resto é
+  // o detalhe (custo e efeito, com cores § escolhidas pelo plugin).
+  "conteudo_cartao": {
+    "type": "panel",
+    "size": [ "100%", "100%" ],
+    "controls": [
+      {
+        "icone_fundo": {
+          "type": "image",
+          "texture": "textures/ui/rpgstats/branco",
+          "color": "$cor_atributo",
+          "alpha": 0.16,
+          "size": [ 16, 16 ],
+          "offset": [ 5, 5 ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left"
+        }
+      },
+      {
+        // Irmão do fundo, não filho: assim o alpha do fundo não apaga o ícone.
+        "icone": {
+          "type": "image",
+          "texture": "$icone",
+          "size": [ 12, 12 ],
+          "offset": [ 7, 7 ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "layer": 1
+        }
+      },
+      {
+        "nome": {
+          "type": "label",
+          "text": "#nome",
+          "color": [ 0.78, 0.81, 0.88 ],
+          "font_scale_factor": 0.8,
+          "shadow": false,
+          "size": [ 66, 9 ],
+          "text_alignment": "left",
+          "offset": [ 25, 10 ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "bindings": [
+            {
+              "binding_name": "#student_button_text",
+              "binding_type": "collection",
+              "binding_collection_name": "student_buttons_collection"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "((('%.18s' * #student_button_text) - ('%.6s' * #student_button_text)) - '@')",
+              "target_property_name": "#nome"
+            }
+          ]
+        }
+      },
+      {
+        "valor": {
+          "type": "label",
+          "text": "#valor",
+          "color": [ 0.97, 0.98, 1.0 ],
+          "font_size": "large",
+          "shadow": false,
+          "size": [ 40, 14 ],
+          "text_alignment": "left",
+          "offset": [ 6, -5 ],
+          "anchor_from": "bottom_left",
+          "anchor_to": "bottom_left",
+          "bindings": [
+            {
+              "binding_name": "#student_button_text",
+              "binding_type": "collection",
+              "binding_collection_name": "student_buttons_collection"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(('%.6s' * #student_button_text) - '@')",
+              "target_property_name": "#valor"
+            }
+          ]
+        }
+      },
+      {
+        "detalhe": {
+          "type": "label",
+          "text": "#detalhe",
+          "color": [ 0.58, 0.62, 0.71 ],
+          "font_scale_factor": 0.7,
+          "text_alignment": "right",
+          "shadow": false,
+          "size": [ 56, 15 ],
+          "offset": [ -6, -5 ],
+          "anchor_from": "bottom_right",
+          "anchor_to": "bottom_right",
+          "bindings": [
+            {
+              "binding_name": "#student_button_text",
+              "binding_type": "collection",
+              "binding_collection_name": "student_buttons_collection"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#student_button_text - ('%.18s' * #student_button_text))",
+              "target_property_name": "#detalhe"
+            }
+          ]
+        }
+      }
+    ]
+  },
+
+  // Seletor de quantidade (7, 8, 9) e a dica, que vem no texto do diálogo.
+  "rodape": {
+    "type": "panel",
+    "size": [ "100%", 18 ],
+    "offset": [ 0, 112 ],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "controls": [
+      {
+        "seletor": {
+          "type": "stack_panel",
+          "orientation": "horizontal",
+          "collection_name": "student_buttons_collection",
+          "size": [ 80, 18 ],
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle",
+          "controls": [
+            {
+              "menos@rpgstats_ficha.botao": {
+                "collection_index": 7,
+                "size": [ 18, 18 ],
+                "$conteudo": "rpgstats_ficha.conteudo_menos"
+              }
+            },
+            { "p0": { "type": "panel", "size": [ 3, 18 ] } },
+            {
+              "quantidade": {
+                "type": "image",
+                "texture": "textures/ui/rpgstats/cartao",
+                "size": [ 38, 18 ],
+                "collection_index": 8,
+                "controls": [
+                  { "texto@rpgstats_ficha.texto_slot": { "layer": 1, "font_scale_factor": 0.9, "size": [ "100%", 9 ], "text_alignment": "center" } }
+                ]
+              }
+            },
+            { "p1": { "type": "panel", "size": [ 3, 18 ] } },
+            {
+              "mais@rpgstats_ficha.botao": {
+                "collection_index": 9,
+                "size": [ 18, 18 ],
+                "$conteudo": "rpgstats_ficha.conteudo_mais"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "dica": {
+          "type": "label",
+          "text": "#dialogtext",
+          "color": [ 0.5, 0.54, 0.63 ],
+          "font_scale_factor": 0.75,
+          "shadow": false,
+          "text_alignment": "right",
+          "size": [ 205, 9 ],
+          "anchor_from": "right_middle",
+          "anchor_to": "right_middle",
+          "bindings": [
+            { "binding_name": "#dialogtext", "binding_type": "global" }
+          ]
+        }
+      }
+    ]
+  },
+
+  "conteudo_menos": {
+    "type": "panel",
+    "size": [ "100%", "100%" ],
+    "controls": [ { "g@rpgstats_ficha.glifo": { "$glifo": "textures/ui/rpgstats/menos" } } ]
+  },
+
+  "conteudo_mais": {
+    "type": "panel",
+    "size": [ "100%", "100%" ],
+    "controls": [ { "g@rpgstats_ficha.glifo": { "$glifo": "textures/ui/rpgstats/mais" } } ]
+  },
+
+  // ---------------------------------------------------------------------------
+  // Abas "detalhes" e "bonus": o texto do diálogo, com rolagem
+  // ---------------------------------------------------------------------------
+  "aba_texto": {
+    "type": "image",
+    "texture": "textures/ui/rpgstats/cartao",
+    "size": [ "100%", 130 ],
+    "offset": [ 0, 60 ],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "controls": [
+      {
+        "rolagem@common.scrolling_panel": {
+          "layer": 1,
+          "size": [ "100% - 8px", "100% - 8px" ],
+          "$always_handle_scrolling": true,
+          "$jump_to_bottom_on_update": false,
+          "$scrolling_content": "rpgstats_ficha.texto_longo",
+          "$scroll_box_visible_touch": false,
+          "$show_background": false,
+          "$scroll_bar_left_padding_size": [ 0, 0 ],
+          "$scroll_bar_right_padding_size": [ 0, 0 ],
+          "$scroll_size": [ 3, "100%" ],
+          "$scroll_size_touch": [ 3, "100%" ]
+        }
+      }
+    ],
+    "bindings": [
+      { "binding_name": "#title_text", "binding_type": "global" },
+      {
+        "binding_type": "view",
+        "source_property_name": "(not ((#title_text - '|detalhes|' - '|bonus|') = #title_text))",
+        "target_property_name": "#visible"
+      }
+    ]
+  },
+
+  "texto_longo": {
+    "type": "panel",
+    "size": [ "100% - 6px", "100%c" ],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "controls": [
+      {
+        "texto": {
+          "type": "label",
+          "text": "#dialogtext",
+          "color": [ 0.86, 0.88, 0.93 ],
+          "shadow": false,
+          "size": [ "100% - 4px", "default" ],
+          "text_alignment": "left",
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [ 2, 2 ],
+          "bindings": [
+            { "binding_name": "#dialogtext", "binding_type": "global" }
+          ]
+        }
+      }
+    ]
+  }
+}

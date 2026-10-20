@@ -1,0 +1,64 @@
+# ─── Títulos ────────────────────────────────────────────────────────────────
+#
+# Conquistas acumuláveis. Mesmo formato de classes.yml.
+#
+# TODOS os títulos que o jogador tem valem ao mesmo tempo — os bônus somam e os
+# multiplicadores compõem. O que ele escolhe com /titulo usar <id> é só qual deles
+# aparece junto do nome.
+#
+# Dê e tire com /titulo add <jogador> <id> e /titulo remove <jogador> <id>.
+#
+# Os títulos abaixo são um EXEMPLO, pensados para cobrir os formatos possíveis: só
+# atributo, só multiplicador, e os dois juntos.
+
+iniciado:
+  nome: "Iniciado"
+  descricao: "Deu os primeiros passos."
+  atributos:
+    hp: 2
+    mana: 2
+
+veterano:
+  nome: "Veterano"
+  descricao: "Já viu de tudo neste servidor."
+  atributos:
+    damage: 3
+    speed: 1
+
+sobrevivente:
+  nome: "Sobrevivente"
+  descricao: "Saiu vivo de onde ninguém sai."
+  atributos:
+    hp: 5
+    defense: 3
+  multiplicadores:
+    health_regen: 1.20
+
+incansavel:
+  nome: "Incansável"
+  descricao: "Só multiplicador, nenhum atributo."
+  multiplicadores:
+    health_regen: 1.50
+    mana_regen: 1.50
+
+muralha:
+  nome: "Muralha"
+  descricao: "Trocou mobilidade por resistência."
+  atributos:
+    defense: 6
+  multiplicadores:
+    defense: 1.15
+    speed: 0.98
+
+lendario:
+  nome: "Lendário"
+  descricao: "O título mais forte do exemplo. Use como teto de balanceamento."
+  atributos:
+    hp: 20
+    damage: 15
+    defense: 10
+    mana: 15
+  multiplicadores:
+    damage: 1.20
+    mana_max: 1.30
+    xp_gain: 1.25

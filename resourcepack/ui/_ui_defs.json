@@ -1,0 +1,7 @@
+{
+  "ui_defs": [
+    "ui/rpgstats/ficha.json",
+    "ui/rpgstats/hud.json",
+    "ui/rpgstats/formulario.json"
+  ]
+}

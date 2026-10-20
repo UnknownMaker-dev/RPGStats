@@ -1,0 +1,60 @@
+# ─── Habilidades upáveis ────────────────────────────────────────────────────
+#
+# O jogador desbloqueia e evolui com /habilidade upar <id>, pagando os MESMOS pontos
+# que compram atributo em /pontos gastar. Essa disputa é a escolha de build.
+#
+#   nome              como aparece nas telas
+#   descricao         uma linha explicando a habilidade
+#   tipo              dash | teleport | critico  (o que o servidor sabe executar)
+#   nivel-maximo      até onde ela sobe
+#   nivel-requerido   nível mínimo do jogador para desbloquear
+#   permissao         quem não tiver, não usa. "" = liberado
+#   custo-mana        mana por uso, POR NÍVEL
+#   recarga           segundos de espera, POR NÍVEL
+#   potencia          o efeito, POR NÍVEL:
+#                       dash     → força do impulso
+#                       teleport → distância máxima em blocos
+#                       critico  → chance de crítico em %
+#   custo-pontos      pontos para subir PARA aquele nível
+#
+# As listas são indexadas por nível: o primeiro item é o nível 1, o segundo o 2, e
+# assim por diante. Quando a lista acaba antes do nível, vale o último item dela —
+# então "custo-mana: [10]" quer dizer 10 em todos os níveis.
+#
+# `critico` é PASSIVA: não se usa, ela age sozinha nos golpes. Ter duas habilidades
+# de crítico faz as chances somarem, com teto em 100%.
+
+dash:
+  nome: "Investida"
+  descricao: "Impulso na direção em que você olha."
+  tipo: dash
+  nivel-maximo: 5
+  nivel-requerido: 1
+  custo-mana:  [8, 10, 12, 14, 16]
+  recarga:     [6.0, 5.0, 4.0, 3.0, 2.0]
+  potencia:    [0.8, 1.0, 1.2, 1.4, 1.7]
+  custo-pontos: [1, 2, 3, 4, 6]
+
+teleport:
+  nome: "Salto Sombrio"
+  descricao: "Teleporta para a frente, parando antes de qualquer parede."
+  tipo: teleport
+  nivel-maximo: 5
+  nivel-requerido: 15
+  custo-mana:  [20, 24, 28, 32, 36]
+  recarga:     [12.0, 10.0, 8.0, 6.0, 4.0]
+  potencia:    [4, 6, 8, 11, 15]
+  custo-pontos: [3, 4, 5, 7, 10]
+
+critico:
+  nome: "Golpe Certeiro"
+  descricao: "Passiva: chance de o golpe sair crítico."
+  tipo: critico
+  nivel-maximo: 10
+  nivel-requerido: 5
+  # Passiva: não consome mana nem tem recarga.
+  custo-mana: 0
+  recarga: 0
+  # Chance em %, do nível 1 ao 10.
+  potencia:    [3, 6, 9, 12, 15, 18, 21, 24, 27, 30]
+  custo-pontos: [2, 2, 3, 3, 4, 4, 5, 6, 7, 9]

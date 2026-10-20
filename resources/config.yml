@@ -1,0 +1,144 @@
+# ─── RPGStats ───────────────────────────────────────────────────────────────
+# Sistema de atributos de RPG. Nada aqui é específico de um tema: as classes, os ranks
+# e os títulos que existem no servidor são definidos nos YAMLs ao lado, e o vocabulário
+# das mensagens sai deste arquivo.
+
+# Frase mostrada a quem entra. {jogador} vira o nome. Deixe "" para não mostrar nada.
+mensagem-de-entrada: "§b[Sistema] Bem-vindo de volta, §f{jogador}§b."
+
+# Classe e rank de quem entra pela primeira vez. Use o id exato de classes.yml e
+# ranks.yml, ou "" para nenhum.
+classe-padrao: ""
+rank-padrao: e
+
+# ─── Como cada atributo vira número no jogo ─────────────────────────────────
+# O primeiro ponto de um atributo é o piso: um jogador recém-criado tem exatamente o
+# valor "base", e cada ponto acima do primeiro soma "por-ponto".
+atributos:
+  vida:
+    base: 20          # vida com HP 1 (20 = os 10 corações do jogo)
+    por-ponto: 2.0    # vida somada por ponto de HP
+
+  mana:
+    base: 20
+    por-ponto: 10.0
+
+  dano:
+    # Dano somado ao golpe por ponto de DANO. É soma, não multiplicação: a arma
+    # continua valendo o que vale, e o atributo entra por cima.
+    por-ponto: 0.5
+
+  velocidade:
+    base: 0.1         # 0.1 é a velocidade normal de caminhada
+    por-ponto: 0.005
+    # Teto duro. Acima de ~0.4 o cliente começa a divergir do servidor e a
+    # movimentação fica intratável.
+    teto: 0.4
+
+  velocidade-ataque:
+    # Fração da recarga entre golpes cortada por ponto de VEL. ATAQUE.
+    por-ponto: 0.02
+    # Teto da redução. 0.6 = a recarga nunca cai abaixo de 40% do normal; zerar
+    # transformaria qualquer arma em dano contínuo.
+    reducao-maxima: 0.6
+
+combat:
+  # Defesa ganha por ponto do atributo DEFESA.
+  defesa-por-ponto: 1.0
+
+  # Peso da defesa na mitigação: dano * (100 / (100 + defesa * escala)).
+  # Retorno decrescente de propósito, então empilhar defesa nunca zera o dano.
+  # Com escala 1.2: 10 de defesa cortam ~11%, 50 cortam ~38%, 200 cortam ~71%.
+  escala-defesa: 1.2
+
+  # Teto da redução (0.8 = no máximo 80% do dano é absorvido).
+  reducao-maxima: 0.8
+
+  # Quanto o golpe crítico multiplica. Vale para o dano inteiro, arma incluída.
+  multiplicador-critico: 2.0
+
+regen:
+  # De quantos em quantos ticks o ciclo de regeneração roda (20 ticks = 1 segundo).
+  intervalo-ticks: 40
+
+  # Segundos sem tomar dano para a regeneração voltar a agir. 0 desliga a trava.
+  segundos-fora-de-combate: 5
+
+  mana:
+    # Fração da mana máxima recuperada por ciclo (0.02 = 2%).
+    percentual-por-ciclo: 0.02
+    # Piso de recuperação por ciclo, para quem tem pouca mana.
+    minimo-por-ciclo: 1
+
+  vida:
+    base-por-ciclo: 0.5
+    por-ponto-de-hp: 0.05
+
+modos:
+  # Intervalo do ciclo que cobra a mana dos modos ligados. É a unidade do
+  # "custo-mana-por-ciclo" do modos.yml: dobrar este número corta pela metade o
+  # custo real por segundo de TODOS os modos.
+  intervalo-ticks: 20
+
+progression:
+  # Desligue para o servidor não dar XP por abate. Os dados continuam salvos.
+  enabled: true
+
+  # Nível máximo. Chegando nele, o XP para de acumular.
+  max-level: 100
+
+  # Pontos ganhos por nível. Servem tanto para atributo (/pontos gastar) quanto
+  # para habilidade (/habilidade upar) — a disputa entre os dois é a build.
+  points-per-level: 3
+
+  xp:
+    base: 25
+    exponent: 1.5
+
+  xp-per-kill:
+    player: 25
+    mob: 5
+    by-entity:
+      zombie: 8
+      skeleton: 8
+      creeper: 10
+      enderman: 20
+
+training:
+  enabled: true
+
+  # TP ganho por ponto de dano causado, contando o dano que de fato saiu.
+  tp-per-damage: 1.0
+
+  mostrar-ganho: true
+
+  cost:
+    # Custo para subir 1 ponto = base * (valor atual do atributo ^ exponent).
+    base: 10
+    exponent: 1.0
+
+ui:
+  # Como o /stats abre para o jogador:
+  #
+  #   formulario  a tela padrão do Bedrock. Feia, mas funciona sem resource pack.
+  #   desenhada   a ficha pintada pelo pack do RPGStats (pasta resourcepack/).
+  #
+  # DEIXE EM "formulario" ENQUANTO O PACK NÃO ESTIVER INSTALADO: a ficha desenhada manda
+  # os dados em campos de largura fixa, completados com "@", que só o pack sabe ler.
+  # Sem o pack, o jogador vê esses campos crus na tela de diálogo.
+  formato: formulario
+
+  # Tema da ficha desenhada (/stats tema): aurora, esmeralda, rubi, ametista, ambar.
+  # Os nomes antigos (original, jade, tinta, sangue, pergaminho) viram o tema equivalente.
+  default-preset: aurora
+
+hud:
+  # DEIXE false ENQUANTO O RESOURCE PACK NÃO ESTIVER INSTALADO. A HUD conversa com o
+  # pack pelo título, então sem ele o jogador lê "rpgh:h082m100..." escrito na tela.
+  enabled: false
+  interval-ticks: 10
+  title-stay-ticks: 72000
+
+save:
+  # De quantos em quantos ticks os dados alterados vão para o disco (6000 = 5 min).
+  auto-save-interval-ticks: 6000
